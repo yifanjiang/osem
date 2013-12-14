@@ -1,5 +1,10 @@
 Osem::Application.routes.draw do
 
+  namespace :admin do
+    resources :roles
+  end
+
+
   devise_for :users, :controllers => { :registrations => :registrations }, :path => 'accounts'
 
   namespace :admin do
@@ -30,6 +35,8 @@ Osem::Application.routes.draw do
       put "/tracks" => "tracks#update", :as => "tracks_update"
       get "/dietary_choices" => "dietchoices#show", :as => "dietary_list"
       put "/dietary_choices" => "dietchoices#update", :as => "dietary_update"
+      get "/roles" => "roles#show", :as => "roles_list"
+      put "/roles" => "roles#update", :as => "roles_update"
       get "/cfp" => "callforpapers#show", :as => "cfp_info"
       put "/cfp" => "callforpapers#update", :as => "cfp_update"
       post "/cfp" => "callforpapers#create", :as => "cfp_create"
