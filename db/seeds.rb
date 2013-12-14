@@ -6,5 +6,5 @@
 #   cities = City.create([{ name: 'Chicago' }, { name: 'Copenhagen' }])
 #   Mayor.create(name: 'Emanuel', city: cities.first)
 Role.create(:name => "Participant")
-Role.create(:name => "Organizer")
+Role.create(:name => "Organizer", :description => "No delete right")
 Role.create(:name => "Admin")
