@@ -1,7 +1,9 @@
 <div class="nested-fields">
     <%= f.inputs do %>
         <%= f.input :title%>
-        <%= f.input :url  %>
+        <%= f.input :price%>
+        <%= f.input :currency%>
+        <%= f.input :url, :hint => "Where to buy the ticket from. If no url is set, tickets can only be bought during the conference."%>
         <%= remove_association_link :supporter_level, f %>
     <% end %>
 </div>
