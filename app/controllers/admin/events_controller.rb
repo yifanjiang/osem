@@ -144,4 +144,11 @@ class Admin::EventsController < ApplicationController
       format.js
     end
   end
+  
+  def registrations
+    @event = @conference.events.find(params[:event_id])
+    @event_registrations = @event.registrations.select("*, events_registrations.created_at")
+    @event_registrations_pdf = @event_registrations.joins(:person).order(:last_name).select("events_registrations.created_at")
+    @pdf_filename = "registrations_#{@event.title}_#{@conference.short_title}.pdf"
+  end
 end

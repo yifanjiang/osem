@@ -5,8 +5,10 @@ class Registration < ActiveRecord::Base
 
   has_one :supporter_registration
   has_one :supporter_level, :through => :supporter_registration
+  has_many :events_registrations, :dependent => :destroy
+  has_many :events, :through => :events_registrations
+
   has_and_belongs_to_many :social_events
-  has_and_belongs_to_many :events
   has_and_belongs_to_many :qanswers
   has_and_belongs_to_many :vchoices
 

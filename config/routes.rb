@@ -42,7 +42,9 @@ Osem::Application.routes.draw do
       resources :difficulty_levels
       put "/questions/update_conference" => "questions#update_conference"
       resources :questions
+      
       resources :events do
+        get "/registrations" => "events#registrations"
         member do
           post :comment
           put :update_state
