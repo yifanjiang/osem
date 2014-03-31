@@ -1,0 +1,1 @@
+$('#state_dropdown' + "<%= params[:id]%>").text("<%= Event.find(params[:id]).state.humanize%>");

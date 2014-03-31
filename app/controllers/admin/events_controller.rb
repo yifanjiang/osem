@@ -123,7 +123,11 @@ class Admin::EventsController < ApplicationController
     event = Event.find(params[:id])
     event.send(:"#{params[:transition]}!", :send_mail => params[:send_mail])
     expire_page :controller => '/schedule', :action => :index
-    redirect_to(admin_conference_events_path(:conference_id => @conference.short_title), :notice => "Updated state")
+    
+    respond_to do |format|
+      format.html {redirect_to(admin_conference_events_path(:conference_id => @conference.short_title), :notice => "Updated state")} 
+      format.js
+    end
   end
 
   def vote
