@@ -21,6 +21,8 @@ group :development, :test do
   gem 'sqlite3'
   gem 'thin'
   gem 'letter_opener'
+  gem 'rspec-rails', '2.11.0'
+  gem 'factory_girl_rails'
 end
 
 group :production do
