@@ -1,0 +1,9 @@
+one:
+  id: 1
+  email: test1@gmail.com
+  encrypted_password: $2a$10$YsSkJ1dbswGq/APLLUGNdOZ9JlQkrnK89L4uzpr06dbK8qRP/eOLO
+  confirmation_token: 2sb9KQpUmk9BzVrVzDGy
+  confirmed_at: 2014-01-19 15:25:45.590893
+  confirmation_sent_at: 2014-01-19 15:25:21.899883
+  created_at: 2014-01-19 15:25:21.900683
+  updated_at: 2014-01-19 15:25:21.900683
