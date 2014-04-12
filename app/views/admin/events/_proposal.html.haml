@@ -2,11 +2,14 @@
   .col-md-12
     %h3
       = @event.title
+      - if @event.require_registration
+        %small{:style => "color:red"}
+          %i (Registration required)
       %br
       %small
         = @event.subtitle
 
-      = link_to "Registrations",  admin_conference_event_registrations_path(@conference.short_title, @event), :class => "btn btn-mini btn-success pull-right" unless @event.registrations.empty?
+      = link_to "Registrations (#{@event.registrations.length}/#{@event.max_participants})",  admin_conference_event_registrations_path(@conference.short_title, @event), :class => "btn btn-mini btn-success pull-right" if @event.require_registration
       
       = link_to "Edit", edit_admin_conference_event_path(@conference.short_title, @event), :class => "btn btn-mini btn-primary pull-right"
       

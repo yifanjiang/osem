@@ -1,7 +1,8 @@
 class Event < ActiveRecord::Base
   include ActiveRecord::Transitions
+  include ActiveModel::Validations
   has_paper_trail
-  attr_accessible :title, :subtitle, :abstract, :description, :event_type_id, :people_attributes, :person, :proposal_additional_speakers, :track_id, :media_id, :media_type, :require_registration, :difficulty_level_id
+  attr_accessible :title, :subtitle, :abstract, :description, :event_type_id, :people_attributes, :person, :proposal_additional_speakers, :track_id, :media_id, :media_type, :require_registration, :difficulty_level_id, :max_participants
 
   acts_as_commentable
 
@@ -25,7 +26,16 @@ class Event < ActiveRecord::Base
   accepts_nested_attributes_for :event_attachments, :allow_destroy => true, :reject_if => :all_blank
   accepts_nested_attributes_for :people
   before_create :generate_guid
-
+  before_save :maxparticipants
+  
+  def maxparticipants
+    if !self.room.nil? && !self.room.size.nil?
+      unless self.max_participants <= self.room.size
+	self.max_participants = self.room.size
+      end
+    end
+  end
+  
   def self.media_types
     media_types = {:youtube => 'YouTube', :slideshare => 'SlideShare',  :flickr => 'Flickr', :vimeo => 'Vimeo', :speakerdeck => 'Speakerdeck', :instagram => 'Instagram'}
     return media_types

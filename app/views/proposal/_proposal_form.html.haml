@@ -16,7 +16,6 @@
     - else
       = f.input :event_type_id,:as => :select, :collection => @event_types.map {|x| ["#{x.title} - #{show_time(x.length)}", x.id]}, :include_blank => false, :label => "Session Type"
     = f.input :difficulty_level, :as => :select, :collection => @conference.difficulty_levels, :include_blank => "(Please select)" if @conference.use_difficulty_levels
-    = f.input :require_registration
     = f.input :abstract, :input_html => {:rows => 5, :class => "span11"},
       :required => true, :label => "Session Abstract"
     You have used
@@ -39,6 +38,10 @@
     %p{:class => "help-block media-type", :id => "speakerdeck-help", :style => "display:none"} Go to your SpeakerDeck, click on "share" -> "embed" and copy the data-id
     %p{:class => "help-block media-type", :id => "instagram-help", :style => "display:none"} Go to your Instagram photo page and copy everything behind instagram.com/p/ (without trailing /# hash symbol)
     = f.input :media_id, :label => "Media ID", :as => :string
+    %section#registration
+      = f.inputs :name => "Pre-registration" do
+        = f.input :require_registration, :hint => "Check if you need people to register prior to attending"
+        = f.input :max_participants, :hint => "Cannot be higher than the maximum capacity of the assigned room (#{@event.room && !@event.room.size.nil? ? @event.room.size  : "not defined yet" })."
 
   %section#information
   = f.inputs :name => "Your Information" do
