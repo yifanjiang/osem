@@ -13,7 +13,8 @@ class Event < ActiveRecord::Base
   has_many :voters, :through => :votes, :source => :person
   belongs_to :event_type
 
-  has_and_belongs_to_many :registrations
+  has_many :events_registrations, :dependent => :destroy
+  has_many :registrations, :through => :events_registrations
 
   belongs_to :track
   belongs_to :room

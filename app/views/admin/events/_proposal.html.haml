@@ -5,26 +5,14 @@
       %br
       %small
         = @event.subtitle
-      = link_to "Edit", edit_admin_conference_event_path(@conference.short_title, @event), :class => "btn btn-mini btn-default pull-right"
 
+      = link_to "Registrations",  admin_conference_event_registrations_path(@conference.short_title, @event), :class => "btn btn-mini btn-success pull-right" unless @event.registrations.empty?
+      
+      = link_to "Edit", edit_admin_conference_event_path(@conference.short_title, @event), :class => "btn btn-mini btn-primary pull-right"
+      
 .row
   .col-md-12
     %table.table
-      %tr
-        %td{:style => "width:15%"}
-          %b Type
-        %td
-          .dropdown
-            = link_to "#", :class => "dropdown-toggle", :id => "type-dropdown" do
-              - if @event.event_type.nil?
-                Event Type
-              - else
-                = @event.event_type.title
-              <b class="caret"></b>
-            %ul.dropdown-menu
-              - @event_types.each do |type|
-                %li= link_to type.title, admin_conference_event_path(@conference.short_title, @event, :event_type_id => type.id) ,
-                  :method => :put, :event_type_id => type.id
       %tr
         %td
           %b State
@@ -55,6 +43,22 @@
               - if @event.transition_possible? :cancel
                 %li= link_to "Cancel event", update_state_admin_conference_event_path(@conference.short_title, @event, :transition => :cancel),
                   :method => :put, :hint => "Mark this event as cancelled. Usually this means that the speakers had to cancel their appearance."
+      %tr
+        %td{:style => "width:15%"}
+          %b Type
+        %td
+          .dropdown
+            = link_to "#", :class => "dropdown-toggle", :id => "type-dropdown" do
+              - if @event.event_type.nil?
+                Event Type
+              - else
+                = @event.event_type.title
+              <b class="caret"></b>
+            %ul.dropdown-menu
+              - @event_types.each do |type|
+                %li= link_to type.title, admin_conference_event_path(@conference.short_title, @event, :event_type_id => type.id) ,
+                  :method => :put, :event_type_id => type.id
+                  
       %tr
         %td
           %b Track

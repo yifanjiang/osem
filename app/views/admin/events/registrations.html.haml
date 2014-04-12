@@ -1,0 +1,30 @@
+.row
+  .col-md-12
+    .page-header
+      = link_to "PDF", admin_conference_event_registrations_path(@conference.short_title, :format => :pdf), :class => "btn btn-large btn-success pull-right"
+      %h2 Registrations (#{@event_registrations.length}) for #{@event.title}
+      
+    %table.table.table-bordered.table-striped.table-hover#registrations
+      %thead
+        %th No
+        %th Name
+        %th Email
+        %th Registered on
+      - counter = 0
+      - @event_registrations.each do |r|
+        - counter +=1
+        %tr
+          %td= counter
+          %td
+            = r.last_name
+            = r.first_name
+            = "(#{r.public_name})"
+          %td= r.email
+          %td= r.created_at
+        
+:javascript
+  $(document).ready(function(){
+      $('#registrations').dataTable({
+        "bPaginate": false
+      });
+  });              
