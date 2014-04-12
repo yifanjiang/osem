@@ -30,7 +30,7 @@ class Event < ActiveRecord::Base
   
   def maxparticipants
     if !self.room.nil? && !self.room.size.nil?
-      unless self.max_participants <= self.room.size
+      if self.max_participants.nil? or self.max_participants > self.room.size
 	self.max_participants = self.room.size
       end
     end
@@ -46,6 +46,7 @@ class Event < ActiveRecord::Base
   validates :title, :presence => true
   validates :abstract, :presence => true
   validates :media_type, inclusion: {in: self.media_types.values}
+  validates :max_participants, :numericality => {:greater_than => 0}, allow_nil: true
 
   scope :confirmed, where(:state => "confirmed")
 
