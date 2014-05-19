@@ -5,10 +5,20 @@
 #
 #   cities = City.create([{ name: 'Chicago' }, { name: 'Copenhagen' }])
 #   Mayor.create(name: 'Emanuel', city: cities.first)
-Role.create(:name => "Participant")
-Role.create(:name => "Organizer")
-Role.create(:name => "Admin")
 
+# Create roles
+Role.create(:name => "Global Admin")
+Role.create(:name => "Admin of conference")
+Role.create(:name => "Organizer of conference")
+Role.create(:name => "Participant")
+Role.create(:name => "Attendee")
+Role.create(:name => "Volunteer")
+Role.create(:name => "Press")
+Role.create(:name => "Speaker")
+Role.create(:name => "CfP team")
+Role.create(:name => "Registration Desk team")
+
+# Create global questions
 qtype_yesno = QuestionType.create(:title => "Yes/No")
 qtype_single = QuestionType.create(:title => "Single Choice")
 qtype_multiple = QuestionType.create(:title => "Multiple Choice")
