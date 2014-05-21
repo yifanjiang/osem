@@ -1,7 +1,7 @@
 Osem::Application.routes.draw do
-  scope "(:locale)", locale: /#{I18n.available_locales.join("|")}/ do
+  devise_for :users, :controllers => { :registrations => :registrations }, :path => 'accounts'
 
-    devise_for :users, :controllers => { :registrations => :registrations }, :path => 'accounts'
+  scope '(:locale)', locale: /#{I18n.available_locales.join("|")}/,  defaults: { locale: I18n.default_locale } do
 
     namespace :admin do
       resources :users
@@ -77,6 +77,9 @@ Osem::Application.routes.draw do
         delete "/register" => "conference_registration#unregister"
       end
     end
+
+    get "/admin" => redirect("/admin/conference")
+    root :to => "home#index"
   end
 
   namespace :api, defaults: {format: 'json'} do
@@ -94,8 +97,4 @@ Osem::Application.routes.draw do
       resources :events, :only => :index
     end
   end
-
-  get "/admin" => redirect("/admin/conference")
-
-  root :to => "home#index"
 end
