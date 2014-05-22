@@ -11,7 +11,7 @@ class Room < ActiveRecord::Base
   def generate_guid
     begin
       guid = SecureRandom.urlsafe_base64
-    end while Person.where(:guid => guid).exists?
+    end while ConferencePerson.where(:guid => guid).exists?
     self.guid = guid
   end
 

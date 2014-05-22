@@ -8,16 +8,17 @@ class User < ActiveRecord::Base
          :confirmable
 
   has_and_belongs_to_many :roles
-  has_one :person, :inverse_of => :user
+  has_one :conference_person, :inverse_of => :user
 
-  attr_accessible :email, :password, :password_confirmation, :remember_me, :role_id, :role_ids, :person_attributes
-  accepts_nested_attributes_for :person
+  attr_accessible :email, :password, :password_confirmation, :remember_me, :role_id, :role_ids, 
+                  :conference_person_attributes
+  accepts_nested_attributes_for :conference_person
   accepts_nested_attributes_for :roles
 
   before_create :setup_role
-  before_create :create_person
+  before_create :create_conference_person
 
-  delegate :last_name, :first_name, :public_name, to: :person
+  delegate :last_name, :first_name, :public_name, to: :conference_person
 
   def role?(role)
     Rails.logger.debug("Checking role in user")
@@ -49,9 +50,9 @@ class User < ActiveRecord::Base
   end
 
   private
-  def create_person
+  def create_conference_person
     # TODO Search people for existing email address, add to their account
-    build_person(email: email) if person.nil?
+    build_conference_person(email: email) if conference_person.nil?
     true
   end
 end

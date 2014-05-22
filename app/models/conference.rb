@@ -3,13 +3,13 @@
 
 class Conference < ActiveRecord::Base
   attr_accessible :title, :short_title, :social_tag, :contact_email, :timezone, :html_export_path,
-                  :start_date, :end_date, :rooms_attributes, :tracks_attributes, :dietary_choices_attributes,
-                  :use_dietary_choices, :use_supporter_levels, :supporter_levels_attributes, :social_events_attributes,
-                  :event_types_attributes, :registration_start_date, :registration_end_date, :logo,
-		              :questions_attributes, :question_ids, :answers_attributes, :answer_ids,
-                  :difficulty_levels_attributes, :use_difficulty_levels,
-                  :use_vpositions, :use_vdays, :vdays_attributes, :vpositions_attributes, :use_volunteers,
-                  :media_id, :media_type
+                  :start_date, :end_date, :rooms_attributes, :tracks_attributes,
+                  :use_dietary_choices, :dietary_choices_attributes, :use_supporter_levels,
+                  :supporter_levels_attributes, :social_events_attributes, :event_types_attributes,
+                  :registration_start_date, :registration_end_date, :logo, :questions_attributes,
+                  :question_ids, :answers_attributes, :answer_ids, :difficulty_levels_attributes,
+                  :use_difficulty_levels, :use_vpositions, :use_vdays, :use_volunteers,
+                  :vdays_attributes,:vpositions_attributes, :media_id, :media_type
 
   has_paper_trail
 
@@ -30,6 +30,7 @@ class Conference < ActiveRecord::Base
   has_many :vdays, :dependent => :destroy
   has_many :vpositions, :dependent => :destroy
   has_many :vchoices, :dependent => :destroy
+  has_many :conference_people
 
   belongs_to :venue
 
@@ -81,9 +82,9 @@ class Conference < ActiveRecord::Base
   # * +true+ - If the user isn't registered
   def user_registered? user
     return nil if user.nil?
-    return nil if user.person.nil?
+    return nil if user.conference_person.nil?
 
-    if self.registrations.where(:person_id => user.person.id).count == 0
+    if self.registrations.where(:conference_person_id => user.conference_person.id).count == 0
       logger.debug("User #{user.email} isn't registered to self.title")
       return false
     else
@@ -147,7 +148,7 @@ class Conference < ActiveRecord::Base
   def generate_guid
     begin
       guid = SecureRandom.urlsafe_base64
-    end while Person.where(:guid => guid).exists?
+    end while ConferencePerson.where(:guid => guid).exists?
     self.guid = guid
   end
 
