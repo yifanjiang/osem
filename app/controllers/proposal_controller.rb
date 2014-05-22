@@ -4,7 +4,7 @@ class ProposalController < ApplicationController
   before_filter :verify_access, :only => [:edit, :update, :destroy, :confirm]
 
   def setup
-    @person = current_user.person if current_user
+    @person = current_user.conference_person if current_user
     #FIXME: @conference also comes from verify_user, but we need setup also in show
     # which can be accessed anonymusly
     @conference = Conference.find_by(short_title: params[:conference_id])
@@ -54,10 +54,10 @@ class ProposalController < ApplicationController
 
   def update
     session[:return_to] ||= request.referer
-    submitter = params[:person]
+    submitter = params[:conference_person]
 
-    params[:event].delete :people_attributes
-    params[:event].delete :person
+    params[:event].delete :conference_people_attributes
+    params[:event].delete :conference_person
 
     if submitter[:public_name].blank?
       redirect_to edit_conference_proposal_path(@conference.short_title, @event), :alert => "Your public name cannot be blank"
@@ -84,12 +84,12 @@ class ProposalController < ApplicationController
   end
 
   def create
-    person = current_user.person
+    person = current_user.conference_person
     session[:return_to] ||= request.referer
 
     event_params = params[:event]
-    submitter = params[:person]
-    params[:event].delete :person
+    submitter = params[:conference_person]
+    params[:event].delete :conference_person
 
     @event = Event.new(event_params)
     @event.conference = @conference
@@ -111,9 +111,9 @@ class ProposalController < ApplicationController
       person.update_attributes(submitter)
     end
 
-    @event.event_people.new(:person => person,
+    @event.event_conference_people.new(:conference_person => person,
                            :event_role => "submitter")
-    @event.event_people.new(:person => person,
+    @event.event_conference_people.new(:conference_person => person,
                            :event_role => "speaker")
 
     begin
@@ -121,7 +121,7 @@ class ProposalController < ApplicationController
     rescue Exception => e
       @url = conference_proposal_index_path(@conference.short_title)
       @event_types = @conference.event_types
-      @person = current_user.person
+      @person = current_user.conference_person
 
       flash[:error] = "Could not submit proposal: #{e.message}"
       render :action => 'new'

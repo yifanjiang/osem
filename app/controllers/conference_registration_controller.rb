@@ -5,7 +5,7 @@ class ConferenceRegistrationController < ApplicationController
     # TODO Figure out how to change the route's id from :id to :conference_id
     @conference = Conference.find_by(short_title: params[:id])
     @workshops = @conference.events.where("require_registration = ? AND state LIKE ?", true, 'confirmed')
-    @person = current_user.person
+    @person = current_user.conference_person
     if @person.first_name.blank? || @person.last_name.blank?
       redirect_to(edit_user_registration_path, :alert => "Please fill in your first and last name before registering.")
       return
@@ -25,7 +25,7 @@ class ConferenceRegistrationController < ApplicationController
   # TODO this is ugly
   def update
     conference = Conference.find_by(short_title: params[:id])
-    person = current_user.person
+    person = current_user.conference_person
     registration = person.registrations.where(:conference_id => conference.id).first
     update_registration = true
     # First verify that the supporter code is legit
@@ -42,8 +42,8 @@ class ConferenceRegistrationController < ApplicationController
     begin
       if registration.nil?
         update_registration = false
-        person.update_attributes(registration_params[:person_attributes])
-        params[:registration].delete :person_attributes
+        person.update_attributes(registration_params[:conference_person_attributes])
+        params[:registration].delete :conference_person_attributes
         supporter_reg = params[:registration][:supporter_registration_attributes]
         params[:registration].delete :supporter_registration_attributes
         registration = person.registrations.new(registration_params)
@@ -76,7 +76,7 @@ class ConferenceRegistrationController < ApplicationController
       redirect_message = "Registration updated."
     else
       if conference.email_settings.send_on_registration?
-        Mailbot.registration_mail(conference, current_user.person).deliver
+        Mailbot.registration_mail(conference, current_user.conference_person).deliver
       end
     end
     redirect_to(register_conference_path(:id => conference.short_title), :notice => redirect_message)
@@ -84,7 +84,7 @@ class ConferenceRegistrationController < ApplicationController
 
   def unregister
     conference = Conference.find_by(short_title: params[:id])
-    person = current_user.person
+    person = current_user.conference_person
     registration = person.registrations.where(:conference_id => conference.id).first
     registration.destroy
     redirect_to :root
@@ -104,7 +104,7 @@ class ConferenceRegistrationController < ApplicationController
           vchoice_ids: [],
           qanswer_ids: [],
           qanswers_attributes: [],
-          person_attributes: [
+          conference_person_attributes: [
             :id, :public_name, :mobile, :tshirt, :languages,
             :volunteer_experience],
           supporter_registration_attributes: [

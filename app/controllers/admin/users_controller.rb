@@ -2,7 +2,7 @@ class Admin::UsersController < ApplicationController
   before_filter :verify_admin
 
   def index
-    @users = User.joins(:person).order('people.last_name ASC')
+    @users = User.joins(:conference_person).order('conference_people.last_name ASC')
   end
 
   def update

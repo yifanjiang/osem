@@ -70,7 +70,7 @@ class Admin::EventsController < ApplicationController
     @event_types = @conference.event_types
     @comments = @event.root_comments
     @comment_count = @event.comment_threads.count
-    @ratings = @event.votes.includes(:person)
+    @ratings = @event.votes.includes(:conference_person)
     @difficulty_levels = @conference.difficulty_levels
   end
 
@@ -107,7 +107,8 @@ class Admin::EventsController < ApplicationController
       @event.update_attribute(:difficulty_level_id, params[:difficulty_level_id])
     end
 
-    if @event.submitter.update_attributes!(params[:person]) && @event.update_attributes!(params[:event])
+    if @event.submitter.update_attributes!(params[:conference_person]) && 
+@event.update_attributes!(params[:event])
       flash[:notice] = "Successfully updated #{@event.title}."
     else
       flash[:notice] = "Update not successful."
@@ -130,13 +131,13 @@ class Admin::EventsController < ApplicationController
 
   def vote
     @event = Event.find(params[:id])
-    @ratings = @event.votes.includes(:person)
+    @ratings = @event.votes.includes(:conference_person)
     
-    if votes = current_user.person.votes.find_by_event_id(params[:id])
+    if votes = current_user.conference_person.votes.find_by_event_id(params[:id])
       votes.update_attributes(:rating => params[:rating])
     else
       @myvote = @event.votes.build
-      @myvote.person = current_user.person
+      @myvote.conference_person = current_user.conference_person
       @myvote.rating = params[:rating]
       @myvote.save
     end

@@ -4,7 +4,8 @@ class Admin::RegistrationsController < ApplicationController
   def index
     session[:return_to] ||= request.referer
     @pdf_filename = "#{@conference.title}.pdf"
-    @registrations = @conference.registrations.includes(:person).order("registrations.created_at ASC")
+    @registrations = 
+@conference.registrations.includes(:conference_person).order("registrations.created_at ASC")
     @attended = @conference.registrations.where("attended = ?", true).count
     @headers = %w[first_name last_name email irc_nickname other_needs arrival departure attended]
   end
@@ -20,22 +21,24 @@ class Admin::RegistrationsController < ApplicationController
 
       redirect_to admin_conference_registrations_path(@conference.short_title)
       flash[:notice] = "Updated '#{params[:view_field]}' => #{@registration.attended} for
-                        #{(Person.where("id = ?", @registration.person_id).first).email}"
+                        #{(ConferencePerson.where("id = ?",
+                                                  @registration.conference_person_id).first).email}"
   end
 
   def edit
     @registration = @conference.registrations.where("id = ?", params[:id]).first
-    @person = Person.where("id = ?", @registration.person_id).first
+    @person = ConferencePerson.where("id = ?", @registration.conference_person_id).first
   end
 
   def update
     @registration = @conference.registrations.where("id = ?", params[:id]).first
-    @person = Person.where("id = ?", @registration.person_id).first
+    @person = ConferencePerson.where("id = ?", @registration.conference_person_id).first
     begin
-      @person.update_attributes!(params[:registration][:person_attributes])
-      params[:registration].delete :person_attributes
+      @person.update_attributes!(params[:registration][:conference_person_attributes])
+      params[:registration].delete :conference_person_attributes
       if params[:registration][:supporter_registration]
-        @registration.supporter_registration.update_attributes(params[:registration][:supporter_registration_attributes])
+        @registration.supporter_registration.
+          update_attributes(params[:registration][:supporter_registration_attributes])
         params[:registration].delete :supporter_registration_attributes
       end
       @registration.update_attributes!(params[:registration])
@@ -51,29 +54,30 @@ class Admin::RegistrationsController < ApplicationController
 
   def new
     @user = User.new
-    @person = Person.new
+    @person = ConferencePerson.new
     @registration = @person.registrations.new
     @supporter_registration = @conference.supporter_registrations.new
     @conference = Conference.find_by(short_title: params[:conference_id])
   end
-  
+
   def create
     @conference = Conference.find_by(short_title: params[:conference_id])
-    email = params[:registration][:person].delete(:user)[:email]
-    @person = Person.find_by_email email
+    email = params[:registration][:conference_person].delete(:user)[:email]
+    @person = ConferencePerson.find_by_email email
     @registration = nil
     @user = nil
-    
+
     if @person
       if @person.registrations.where(conference_id: @conference).empty?
-        @person.attributes = params[:registration][:person] # Should we really modify person information?
+        @person.attributes = params[:registration][:conference_person] 
+        # Should we really modify person information?
       else
         redirect_to admin_conference_registrations_path(@conference.short_title)
         flash[:notice] = "#{@person.email} is already registred!"
         return
       end
     else
-      @person = Person.new params[:registration][:person]
+      @person = ConferencePerson.new params[:registration][:conference_person]
     end
     @person.email = email
 
@@ -93,7 +97,7 @@ class Admin::RegistrationsController < ApplicationController
     else
       @supporter_registration = @conference.supporter_registrations.new
     end
-    params[:registration].delete :person
+    params[:registration].delete :conference_person
     params[:registration].delete :user
     params[:registration].delete :supporter_registration
     @registration.attributes = params[:registration]
@@ -115,7 +119,7 @@ class Admin::RegistrationsController < ApplicationController
   def destroy
     if has_role?(current_user, "Admin")
       registration = @conference.registrations.where(:id => params[:id]).first
-      person = Person.where("id = ?", registration.person_id).first
+      person = ConferencePerson.where("id = ?", registration.conference_person_id).first
       
       begin registration.destroy
         redirect_to admin_conference_registrations_path
