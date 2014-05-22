@@ -1,7 +1,8 @@
 Osem::Application.routes.draw do
-  devise_for :users, :controllers => { :registrations => :registrations }, :path => 'accounts'
+  
 
   scope '(:locale)', locale: /#{I18n.available_locales.join("|")}/,  defaults: { locale: I18n.default_locale } do
+    devise_for :users, :controllers => { :registrations => :registrations }, :path => 'accounts'
 
     namespace :admin do
       resources :users
