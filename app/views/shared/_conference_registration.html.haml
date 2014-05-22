@@ -2,8 +2,8 @@
   %br
   Your public name (required)
   %br
-  = f.fields_for :person do |p|
-    = p.text_field :public_name, :for => :person
+  = f.fields_for :conference_person do |p|
+    = p.text_field :public_name, :for => :conference_person
   - if @conference.use_supporter_levels? and @conference.supporter_levels.length > 0
     = f.semantic_fields_for :supporter_registration do |reg|
       = reg.input :supporter_level, :as => :select, :collection => @conference.supporter_levels

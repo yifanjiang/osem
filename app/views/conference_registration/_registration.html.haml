@@ -14,8 +14,8 @@
       %br
       Your public name (required)
       %br
-      = f.fields_for :person do |p|
-        = p.text_field :public_name, :for => :person
+      = f.fields_for :conference_person do |p|
+        = p.text_field :public_name, :for => :conference_person
 
       - if @conference.questions
         = render :partial => "questions", :locals => {:f => f}
