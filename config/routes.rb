@@ -6,7 +6,7 @@ Osem::Application.routes.draw do
 
   namespace :admin do
     resources :users
-    resources :people
+    resources :conference_people
     resources :conference do
       get "/schedule" => "schedule#show"
       patch "/schedule" => "schedule#update"
