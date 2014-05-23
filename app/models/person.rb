@@ -1,21 +1,20 @@
-class ConferencePerson < ActiveRecord::Base
+class Person < ActiveRecord::Base
+  has_paper_trail
   include Gravtastic
   gravtastic :size => 32
 
   attr_accessible :email, :first_name, :last_name, :public_name, :biography, :affiliation, :avatar, 
 :irc_nickname, :mobile, :tshirt, :languages, :volunteer_experience
 
-  belongs_to :user, :inverse_of => :conference_person
+  belongs_to :user, :inverse_of => :person
   belongs_to :conference
-  has_many :event_conference_people, :dependent => :destroy
-  has_many :events, -> { uniq }, :through => :event_conference_people
+  has_many :event_people, :dependent => :destroy
+  has_many :events, -> { uniq }, :through => :event_people
   has_many :registrations, :dependent => :destroy
   has_many :votes, :dependent => :destroy
   has_many :voted_events, :through => :votes, :source => :events
 
-  validates :first_name, :presence => true
-  validates :last_name, :presence => true
-  validates :email, :presence => true
+  validates :public_name, :presence => true
   validate :biography_limit
 
   before_create :generate_guid
@@ -44,13 +43,13 @@ class ConferencePerson < ActiveRecord::Base
 
   def attending_conference? conference
     Registration.where(:conference_id => conference.id,
-                       :conference_person_id => self.id).count
+                       :person_id => self.id).count
   end
 
 
   def proposals conference
     self.events.where("conference_id = ? AND state != ? AND state != ? AND
-                      event_conference_people.event_role=?", 
+                      event_people.event_role=?", 
                       conference.id, "withdrawn", "rejected", "submitter")
   end
 
@@ -66,7 +65,7 @@ class ConferencePerson < ActiveRecord::Base
     end
   end
 
-  def self.find_conference_person_by_user_id user_id
+  def self.find_person_by_user_id user_id
     ConferencePerson.where(:user_id => user_id).first
   end
 
@@ -100,7 +99,7 @@ class ConferencePerson < ActiveRecord::Base
   def generate_guid
     begin
       guid = SecureRandom.urlsafe_base64
-    end while ConferencePerson.where(:guid => guid).exists?
+    end while Person.where(:guid => guid).exists?
     self.guid = guid
   end
 

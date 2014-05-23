@@ -8,17 +8,17 @@ class User < ActiveRecord::Base
          :confirmable
 
   has_and_belongs_to_many :roles
-  has_one :conference_person, :inverse_of => :user
+  has_many :people, :inverse_of => :user
 
   attr_accessible :email, :password, :password_confirmation, :remember_me, :role_id, :role_ids, 
-                  :conference_person_attributes
-  accepts_nested_attributes_for :conference_person
+                  :person_attributes, :name
+  accepts_nested_attributes_for :people
   accepts_nested_attributes_for :roles
 
   before_create :setup_role
-  before_create :create_conference_person
+  before_create :create_person
 
-  delegate :last_name, :first_name, :public_name, to: :conference_person
+  delegate :last_name, :first_name, :public_name, to: :person
 
   def role?(role)
     Rails.logger.debug("Checking role in user")
@@ -47,12 +47,16 @@ class User < ActiveRecord::Base
     details += "#{self.last_sign_in_ip}<br>"
     details += "<b>Created at</b><br>"
     details += "#{self.created_at}<br>"
+    details += "<b>Registered to attend</b>"
+    details += "#{self.person.registrations.map { |r| r.conference.title }.join ','}"
+    details += "<b>Attended</b>"
+    details += "#{self.person.registrations.where("attended = ?", true).map { |r| r.conference.title }.join ','}"
   end
 
   private
-  def create_conference_person
+  def create_person
     # TODO Search people for existing email address, add to their account
-    build_conference_person(email: email) if conference_person.nil?
+    build_person(email: email) if person.nil?
     true
   end
 end

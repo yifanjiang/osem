@@ -1,9 +1,9 @@
-class Admin::ConferencePeopleController < ApplicationController
+class Admin::PeopleController < ApplicationController
   before_filter :verify_organizer
   respond_to :html
 
   def index
-    @people = ConferencePerson.all
+    @people = @conference.people
     mails = []
     @people.each do |p|
       if p.registrations.count < 1 and p.confirmed?
@@ -17,27 +17,27 @@ class Admin::ConferencePeopleController < ApplicationController
   end
 
   def new
-    @person = ConferencePerson.new
+    @person = Person.new
   end
 
   def create
-    @person = ConferencePerson.new(params[:conference_person])
+    @person = Person.new(params[:person])
     flash[:notice] = 'Person was successfully created.' if @person.save
     respond_with @person, :location => admin_people_path
   end
 
   def show
-    @person = ConferencePerson.find(params[:id])
+    @person = Person.find(params[:id])
   end
 
   def edit
-    @person = ConferencePerson.find(params[:id])
+    @person = Person.find(params[:id])
   end
 
   def update
-    @person = ConferencePerson.find(params[:id])
+    @person = Person.find(params[:id])
     flash[:notice] = 'Person was successfully updated' if 
-                     @person.update_attributes(params[:conference_person])
+                     @person.update_attributes(params[:person])
     respond_with @person, :location => admin_people_path
   end
 

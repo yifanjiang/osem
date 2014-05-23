@@ -23,8 +23,12 @@
   %li{:class=> active_nav_li(admin_conference_volunteers_list_path(@conference.short_title))}
     = link_to(admin_conference_volunteers_list_path(@conference.short_title)) do
       %span.glyphicon.glyphicon-user
-      Volunteers                    
+      Volunteers
   %li
     = link_to(admin_conference_schedule_path(@conference.short_title), :target => "_blank") do
       %span.glyphicon.glyphicon-calendar
       Schedule
+  %li
+    = link_to(admin_conference_people_path(@conference.short_title)) do
+      %span.glyphicon.glyphicon-star-empty
+      People

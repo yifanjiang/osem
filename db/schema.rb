@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140522090841) do
+ActiveRecord::Schema.define(version: 20140522153157) do
 
   create_table "answers", force: true do |t|
     t.string   "title"
@@ -49,30 +49,6 @@ ActiveRecord::Schema.define(version: 20140522090841) do
   add_index "comments", ["commentable_id"], name: "index_comments_on_commentable_id"
   add_index "comments", ["commentable_type"], name: "index_comments_on_commentable_type"
   add_index "comments", ["user_id"], name: "index_comments_on_user_id"
-
-  create_table "conference_people", force: true do |t|
-    t.string   "guid",                              null: false
-    t.string   "first_name",           default: ""
-    t.string   "last_name",            default: ""
-    t.string   "public_name",          default: ""
-    t.string   "affiliation",          default: ""
-    t.string   "email",                             null: false
-    t.boolean  "email_public"
-    t.string   "avatar_file_name"
-    t.string   "avatar_content_type"
-    t.integer  "avatar_file_size"
-    t.datetime "avatar_updated_at"
-    t.text     "biography"
-    t.integer  "user_id"
-    t.datetime "created_at",                        null: false
-    t.datetime "updated_at",                        null: false
-    t.string   "irc_nickname"
-    t.text     "volunteer_experience"
-    t.string   "tshirt"
-    t.string   "mobile"
-    t.string   "languages"
-    t.integer  "conference_id"
-  end
 
   create_table "conferences", force: true do |t|
     t.string   "guid",                                    null: false
@@ -155,14 +131,14 @@ ActiveRecord::Schema.define(version: 20140522090841) do
     t.datetime "updated_at",                              null: false
   end
 
-  create_table "event_conference_people", force: true do |t|
+  create_table "event_people", force: true do |t|
     t.integer  "proposal_id"
-    t.integer  "conference_person_id"
+    t.integer  "person_id"
     t.integer  "event_id"
-    t.string   "event_role",           default: "participant", null: false
+    t.string   "event_role",  default: "participant", null: false
     t.string   "comment"
-    t.datetime "created_at",                                   null: false
-    t.datetime "updated_at",                                   null: false
+    t.datetime "created_at",                          null: false
+    t.datetime "updated_at",                          null: false
   end
 
   create_table "event_types", force: true do |t|
@@ -207,6 +183,30 @@ ActiveRecord::Schema.define(version: 20140522090841) do
     t.integer "event_id"
   end
 
+  create_table "people", force: true do |t|
+    t.string   "guid",                              null: false
+    t.string   "first_name",           default: ""
+    t.string   "last_name",            default: ""
+    t.string   "public_name",          default: ""
+    t.string   "affiliation",          default: ""
+    t.string   "email",                             null: false
+    t.boolean  "email_public"
+    t.string   "avatar_file_name"
+    t.string   "avatar_content_type"
+    t.integer  "avatar_file_size"
+    t.datetime "avatar_updated_at"
+    t.text     "biography"
+    t.integer  "user_id"
+    t.datetime "created_at",                        null: false
+    t.datetime "updated_at",                        null: false
+    t.string   "irc_nickname"
+    t.text     "volunteer_experience"
+    t.string   "tshirt"
+    t.string   "mobile"
+    t.string   "languages"
+    t.integer  "conference_id"
+  end
+
   create_table "qanswers", force: true do |t|
     t.integer "question_id"
     t.integer "answer_id"
@@ -233,7 +233,7 @@ ActiveRecord::Schema.define(version: 20140522090841) do
   end
 
   create_table "registrations", force: true do |t|
-    t.integer  "conference_person_id"
+    t.integer  "person_id"
     t.integer  "conference_id"
     t.boolean  "attending_social_events",     default: true
     t.boolean  "attending_with_partner",      default: false
@@ -338,6 +338,7 @@ ActiveRecord::Schema.define(version: 20140522090841) do
     t.string   "unconfirmed_email"
     t.datetime "created_at",                          null: false
     t.datetime "updated_at",                          null: false
+    t.string   "name"
   end
 
   add_index "users", ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
@@ -392,11 +393,11 @@ ActiveRecord::Schema.define(version: 20140522090841) do
   end
 
   create_table "votes", force: true do |t|
-    t.integer  "conference_person_id"
+    t.integer  "person_id"
     t.integer  "event_id"
     t.integer  "rating"
-    t.datetime "created_at",           null: false
-    t.datetime "updated_at",           null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "vpositions", force: true do |t|

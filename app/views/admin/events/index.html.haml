@@ -58,14 +58,14 @@
               - bgcolor=""
             %td{:style=>"background-color: #{bgcolor}"}
               - if !event.submitter.nil?
-                =link_to event.submitter.public_name, admin_conference_person_path(event.submitter)
+                =link_to event.submitter.public_name, admin_conference_person_path(@conference.short_title, event.submitter)
                 - if event.submitter.registrations.count < 1
                   (Unregistered!)
               - else
                 Unknown submitter
             %td
               - if speaker = event.speakers.first
-                = link_to speaker.public_name, admin_conference_person_path(speaker)
+                = link_to speaker.public_name, admin_conference_person_path(@conference.short_title, speaker)
               - else
                 Unknown speaker
               - l = link_to "Change", edit_admin_conference_event_speaker_path(@conference.short_title, event), :remote => true

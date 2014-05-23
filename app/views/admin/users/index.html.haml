@@ -14,11 +14,11 @@
           %th
             %b Email
           %th
-            %b Last Name
+            %b Name
           %th
-            %b First Name
+            Registered to attend
           %th
-            %b Public Name
+            Attended
           %th
             %b Roles
           %th
@@ -36,12 +36,19 @@
                 unconfirmed
             %td
               = user.email
+              = user.conference_person.registrations.count
             %td
-              = user.last_name
+              = user.name
             %td
-              = user.first_name
+              - if user.conference_person.registrations.count == 0
+                None
+              - else
+                = user.conference_person.registrations.map { |r| r.conference.title }.join ','
             %td
-              = user.public_name
+              - if user.conference_person.registrations.where(attended: true).count == 0
+                None
+              - else
+                = user.conference_person.registrations.map { |r| r.conference.title }.join ','
             %td
               = user.roles.map { |role| role.name }.join ','
             %td

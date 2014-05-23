@@ -5,7 +5,7 @@
         People
         - if @people
           = "(#{@people.length})"
-        = link_to "New person", new_admin_conference_person_path,
+        = link_to "New person", new_admin_conference_person_path(@conference.short_title),
                                 :class => "btn btn-success pull-right"
 
 .row
@@ -32,8 +32,8 @@
             %td= person.first_name
             %td= person.public_name
             %td= person.registrations.count
-            %td= link_to "Edit", edit_admin_conference_person_path(person)
-            %td= link_to "View", admin_conference_person_path(person)
+            %td= link_to "Edit", edit_admin_conference_person_path(@conference.short_title, person)
+            %td= link_to "View", admin_conference_person_path(@conference.short_title, person)
 
 :javascript
   $(document).ready(function() {

@@ -1,0 +1,23 @@
+.row
+  .col-md-12
+    = semantic_form_for(@profile, url: conference_profile_index_path(@conference.short_title), ) do |p|
+      = p.inputs name: "Your profile for this conference (#{@conference.short_title})" do
+        .col-md-6
+          = p.input :first_name, required: false
+          = p.input :last_name, required: false
+          = p.input :public_name, input_html: {value: current_user.name}
+          = p. input :affiliation, as: :string, hint: "This could be a company, a user group or nothing at all."
+          = p.input :biography,  input_html: {rows: 5, "onkeyup" => "word_count(this,
+                                             'biography-count', 150)"}, for: :person
+          You have used
+          %span#biography-count #{current_user.person.biography_word_count}
+          words.  Biographies are limited to 150 words.
+          %br
+          %br
+
+          =p.input :mobile,  :label => "Mobile No (Include country code)", :input_html => {:placeholder => "Eg. +336812345679"}, :hint => "Only visible to admins, org team & volunteer coordinator"
+
+          =p.input :tshirt, :label => "Tshirt Size", :collection => [["Choose", nil],["XS","XS"],["S","S"],["M", "M"], ["L", "L"], ["XL", "XL"], ["XXL", "XXL"], ["XXXL", "XXXL"], ["Girl-S","Girl-s"], ["Girl-M","Girl-M"], ["Girl-L","Girl-L"], ["Girl-XL","Girl-XL"]]
+
+      = p.action :submit, as: :button, label: "Create Profile", button_html: {class: "btn btn-primary"}
+

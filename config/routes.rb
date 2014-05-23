@@ -6,7 +6,6 @@ Osem::Application.routes.draw do
 
   namespace :admin do
     resources :users
-    resources :conference_people
     resources :conference do
       get "/schedule" => "schedule#show"
       patch "/schedule" => "schedule#update"
@@ -18,6 +17,8 @@ Osem::Application.routes.draw do
       get "/volunteers_list" => "volunteers#show"
       get "/volunteers" => "volunteers#index", :as => "volunteers_info"
       patch "/volunteers" => "volunteers#update", :as => "volunteers_update"
+
+      resources :people
 
       patch '/registrations/change_field' => 'registrations#change_field'
       resources :registrations
@@ -65,6 +66,7 @@ Osem::Application.routes.draw do
   end
 
   resources :conference, only: [:show] do
+    resources :profile
     resources :proposal do
       resources :event_attachment, :controller => "event_attachments"
       patch "/confirm" => "proposal#confirm"

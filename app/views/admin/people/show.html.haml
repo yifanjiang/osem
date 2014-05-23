@@ -16,7 +16,7 @@
       = @person.public_name
   %tr
     %td
-      %b Company
+      %b Affiliation
     %td
       = @person.affiliation
   %tr
@@ -34,6 +34,11 @@
       %b Updated At
     %td
       = @person.updated_at
+  %tr
+    %td
+      %b User since
+    %td
+      = @person.user.created_at
   %tr
     %td
       %b Biography

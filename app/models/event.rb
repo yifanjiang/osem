@@ -2,17 +2,17 @@ class Event < ActiveRecord::Base
   include ActiveRecord::Transitions
   has_paper_trail
   attr_accessible :title, :subtitle, :abstract, :description, :event_type_id,
-                  :conference_people_attributes, :conference_person, :proposal_additional_speakers,
+                  :people_attributes, :person, :proposal_additional_speakers,
                   :track_id, :media_id, :media_type, :require_registration, :difficulty_level_id
 
   acts_as_commentable
 
-  has_many :event_conference_people, :dependent => :destroy
+  has_many :event_people, :dependent => :destroy
   has_many :event_attachments, :dependent => :destroy
-  has_many :conference_people, :through => :event_conference_people
-  has_many :speakers, :through => :event_conference_people, :source => :conference_person
+  has_many :people, :through => :event_people
+  has_many :speakers, :through => :event_people, :source => :person
   has_many :votes
-  has_many :voters, :through => :votes, :source => :conference_person
+  has_many :voters, :through => :votes, :source => :person
   belongs_to :event_type
 
   has_and_belongs_to_many :registrations
@@ -22,9 +22,9 @@ class Event < ActiveRecord::Base
   belongs_to :difficulty_level
   belongs_to :conference
 
-  accepts_nested_attributes_for :event_conference_people, :allow_destroy => true
+  accepts_nested_attributes_for :event_people, :allow_destroy => true
   accepts_nested_attributes_for :event_attachments, :allow_destroy => true, :reject_if => :all_blank
-  accepts_nested_attributes_for :conference_people
+  accepts_nested_attributes_for :people
   before_create :generate_guid
 
   validate :abstract_limit
@@ -68,8 +68,8 @@ class Event < ActiveRecord::Base
     end
   end
 
-  def voted?(event, conference_person)
-    event.votes.where("conference_person_id = ?", conference_person).first
+  def voted?(event, person)
+    event.votes.where("person_id = ?", person).first
   end
   
   def average_rating
@@ -82,18 +82,18 @@ class Event < ActiveRecord::Base
   end
 
   def submitter
-    result = self.event_conference_people.where(:event_role => "submitter").first
+    result = self.event_people.where(:event_role => "submitter").first
     if !result.nil?
-      result.conference_person
+      result.person
     else
-      conference_person = nil
-      # Perhaps the event_conference_people haven't been saved, if this is a new proposal
-      self.event_conference_people.each do |p|
+      person = nil
+      # Perhaps the event_people haven't been saved, if this is a new proposal
+      self.event_people.each do |p|
         if p.event_role == "submitter"
-          conference_person = p.conference_person
+          person = p.person
         end
       end
-      conference_person
+      person
     end
   end
 
@@ -127,7 +127,7 @@ class Event < ActiveRecord::Base
 
   def process_confirmation(options)
     if self.conference.email_settings.send_on_confirmed_without_registration?
-      if self.conference.registrations.where(:conference_person_id => self.submitter.id).first.nil?
+      if self.conference.registrations.where(:person_id => self.submitter.id).first.nil?
         Mailbot.confirm_reminder_mail(self).deliver
       end
     end
@@ -194,7 +194,7 @@ class Event < ActiveRecord::Base
 
   def biography_exists
     if self.submitter.biography_word_count == 0
-      errors.add(:conference_person_biography, "must be filled out")
+      errors.add(:person_biography, "must be filled out")
     end
   end
 

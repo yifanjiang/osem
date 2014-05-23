@@ -32,8 +32,8 @@ class RegistrationsController < Devise::RegistrationsController
 
     if successfully_updated
       if email_changed
-        if !@user.conference_person.nil?
-          @user.conference_person.update_attribute("email", params[:user][:email])
+        if !@user.person.nil?
+          @user.person.update_attribute("email", params[:user][:email])
         end
         set_flash_message :notice, :update_needs_confirmation
       else
@@ -62,8 +62,8 @@ class RegistrationsController < Devise::RegistrationsController
   def configure_permitted_parameters
     devise_parameter_sanitizer.for(:account_update) do |u|
       u.
-          permit(:email, :password, :password_confirmation, :current_password,
-                 conference_person_attributes: [:id, :email, :first_name, :last_name,
+          permit(:email, :password, :password_confirmation, :current_password, :name,
+                 person_attributes: [:id, :email, :first_name, :last_name,
                                      :public_name, :biography, :affiliation, :avatar,
                                      :irc_nickname, :mobile, :tshirt, :languages,
                                      :volunteer_experience])

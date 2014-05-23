@@ -2,7 +2,7 @@ class Admin::UsersController < ApplicationController
   before_filter :verify_admin
 
   def index
-    @users = User.joins(:conference_person).order('conference_people.last_name ASC')
+    @users = User.joins(:person).order('people.last_name ASC')
   end
 
   def update
@@ -19,7 +19,6 @@ class Admin::UsersController < ApplicationController
     @user = User.find(params[:id])
     @user.destroy
     redirect_to admin_users_path, :notice => "User got deleted"
-    
-  end  
+  end
 
 end

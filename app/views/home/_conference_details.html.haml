@@ -22,13 +22,22 @@
           .btn-group-vertical
             - if !@conference || @conference != conference
               = link_to "View Conference", conference_path(conference.short_title), :class =>"btn btn-default"
+
             - if conference.registration_open?
               - if conference.user_registered?(current_user)
                 = link_to "Modify Registration", register_conference_path(conference.short_title), :class =>"btn btn-default"
               - else
                 = link_to "Register", register_conference_path(conference.short_title), :class =>"btn btn-success"
-            = link_to "Schedule", conference_schedule_path(conference.short_title), :class =>"btn btn-default" if conference.call_for_papers and conference.call_for_papers.schedule_public
-            - if !current_user.nil? && current_user.conference_person.proposal_count(conference) > 0
-              = link_to "View My Proposals", conference_proposal_index_path(conference.short_title), :class =>"btn btn-default"
+
+            - if conference.call_for_papers and conference.call_for_papers.schedule_public
+              = link_to "Schedule", conference_schedule_path(conference.short_title), :class =>"btn btn-default" 
+
+            - if !current_user.nil? && current_user.person.proposal_count(conference) > 0
+              = link_to "View My Proposals", conference_proposal_index_path(conference.short_title), class: "btn btn-default"
             - elsif conference.cfp_open?
-              = link_to "Submit Proposal", conference_proposal_index_path(conference.short_title), :class =>"btn btn-default"
+              = link_to "Submit Proposal", conference_proposal_index_path(conference.short_title), class: "btn btn-default"
+
+            - if !@profile.nil? && @profile.conference_id == conference.id
+              = link_to "Conference Profile", edit_conference_profile_path(conference.short_title, profile), class: "btn btn-default"
+            - else
+              = link_to "Conference Profile", new_conference_profile_path(conference.short_title), class: "btn btn-default"

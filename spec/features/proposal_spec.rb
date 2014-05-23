@@ -36,20 +36,19 @@ feature Event do
       select('YouTube', from: 'event[media_type]')
       fill_in 'event_media_id', with: '123456'
 
-      fill_in 'conference_person_biography', with: 'Lorem ipsum biography'
-      fill_in 'conference_person_public_name', with: 'Example User'
+      fill_in 'person_biography', with: 'Lorem ipsum biography'
+      fill_in 'person_public_name', with: 'Example User'
 
       click_button 'Submit Session'
-      expect(current_path).to eq(edit_user_registration_path)
+      expect(current_path).to eq(new_conference_profile_path(conference.short_title))
 
-      fill_in 'user_conference_person_attributes_first_name', with: 'Example'
-      fill_in 'user_conference_person_attributes_last_name', with: 'User'
-      fill_in 'user_conference_person_attributes_biography', with: 'Lorem ipsum biography'
+      fill_in 'person_public_name', with: 'Public Name Example'
+      fill_in 'person_biography', with: 'Lorem ipsum biography'
 
-      click_button 'Update'
+      click_button 'Create Profile'
 
       expect(flash).
-          to eq('You updated your account successfully.')
+          to eq("Successfully created conference profile for #{conference.short_title}.")
 
       expect(Event.count).to eq(expected_count)
 
