@@ -61,12 +61,12 @@
             (
             = @speaker.email
             )
-            - if @speaker.company?
+            - if @speaker.affiliation?
               %br
               %span.muted
                 from
-                = @speaker.company
+                = @speaker.affiliation
           -if @speaker.biography?
             = simple_format(@speaker.biography)
         .col-md-4
-          = image_tag @speaker.gravatar_url(:size => 200), :class => "img-responsive img-rounded"
+          = image_tag @speaker.gravatar_url(size:  200), class: "img-responsive img-rounded"

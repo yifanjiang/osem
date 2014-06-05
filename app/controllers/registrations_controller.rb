@@ -33,14 +33,14 @@ class RegistrationsController < Devise::RegistrationsController
     if successfully_updated
       if email_changed
         if !@user.person.nil?
-          @user.person.update_attribute("email", params[:user][:email])
+          @user.person.update_attribute('email', params[:user][:email])
         end
         set_flash_message :notice, :update_needs_confirmation
       else
         set_flash_message :notice, :updated
       end
       # Sign in the user bypassing validation in case his password changed
-      sign_in @user, :bypass => true
+      sign_in @user, bypass: true
       redirect_to after_update_path_for(@user)
     else
       flash[:alert] = 'Updating account failed. ' \
@@ -64,7 +64,7 @@ class RegistrationsController < Devise::RegistrationsController
       u.
           permit(:email, :password, :password_confirmation, :current_password,
                  person_attributes: [:id, :email, :first_name, :last_name,
-                                     :public_name, :biography, :company, :avatar,
+                                     :public_name, :biography, :affiliation, :avatar,
                                      :irc_nickname, :mobile, :tshirt, :languages,
                                      :volunteer_experience])
     end
