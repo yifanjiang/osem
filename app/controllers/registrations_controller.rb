@@ -64,7 +64,7 @@ class RegistrationsController < Devise::RegistrationsController
       u.
           permit(:email, :password, :password_confirmation, :current_password,
                  person_attributes: [:id, :email, :first_name, :last_name,
-                                     :public_name, :biography, :company, :avatar,
+                                     :public_name, :biography, :affiliation, :avatar,
                                      :irc_nickname, :mobile, :tshirt, :languages,
                                      :volunteer_experience])
     end

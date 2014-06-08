@@ -2,7 +2,7 @@ class Person < ActiveRecord::Base
   include Gravtastic
   gravtastic :size => 32
 
-  attr_accessible :email, :first_name, :last_name, :public_name, :biography, :company, :avatar, :irc_nickname, :mobile, :tshirt, :languages, :volunteer_experience
+  attr_accessible :email, :first_name, :last_name, :public_name, :biography, :affiliation, :avatar, :irc_nickname, :mobile, :tshirt, :languages, :volunteer_experience
 
   belongs_to :user, :inverse_of => :person
   has_many :event_people, :dependent => :destroy
@@ -23,8 +23,6 @@ class Person < ActiveRecord::Base
                     :styles => {:tiny => "16x16>", :small => "32x32>", :large => "128x128>"},
                     :default_url => "person_:style.png"
   validates_attachment_content_type :avatar, :content_type => [/jpg/, /jpeg/, /png/, /gif/]
-
-  alias_attribute :affiliation, :company
 
   def to_s
     if self.public_name.empty?

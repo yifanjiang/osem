@@ -26,7 +26,7 @@ class Registration < ActiveRecord::Base
   delegate :public_name, :to => :person
   delegate :email, :to => :person
   delegate :irc_nickname, :to => :person
-  delegate :company, :to => :person
+  delegate :affiliation, :to => :person
   delegate :mobile, :to => :person
   delegate :languages, :to => :person
   delegate :volunteer_experience, :to => :person

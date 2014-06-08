@@ -61,11 +61,11 @@
             (
             = @speaker.email
             )
-            - if @speaker.company?
+            - if @speaker.affiliation?
               %br
               %span.muted
                 from
-                = @speaker.company
+                = @speaker.affiliation
           -if @speaker.biography?
             = simple_format(@speaker.biography)
         .col-md-4
