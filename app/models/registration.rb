@@ -4,7 +4,7 @@ class Registration < ActiveRecord::Base
   belongs_to :dietary_choice
 
   has_one :supporter_registration
-  has_one :supporter_level, :through => :supporter_registration
+  has_one :supporter_level, through: :supporter_registration
   has_and_belongs_to_many :social_events
   has_and_belongs_to_many :events
   has_and_belongs_to_many :qanswers
@@ -21,17 +21,17 @@ class Registration < ActiveRecord::Base
   accepts_nested_attributes_for :social_events
   accepts_nested_attributes_for :qanswers
 
-  delegate :first_name, :to => :person
-  delegate :last_name, :to => :person
-  delegate :public_name, :to => :person
-  delegate :email, :to => :person
-  delegate :irc_nickname, :to => :person
-  delegate :affiliation, :to => :person
-  delegate :mobile, :to => :person
-  delegate :languages, :to => :person
-  delegate :volunteer_experience, :to => :person
-  delegate :tshirt, :to => :person
-  
+  delegate :first_name, to: :person
+  delegate :last_name, to: :person
+  delegate :public_name, to: :person
+  delegate :email, to: :person
+  delegate :irc_nickname, to: :person
+  delegate :affiliation, to: :person
+  delegate :mobile, to: :person
+  delegate :languages, to: :person
+  delegate :volunteer_experience, to: :person
+  delegate :tshirt, to: :person
+
   alias_attribute :other_needs, :other_special_needs
 
   def week

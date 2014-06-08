@@ -1,24 +1,26 @@
-= semantic_form_for(@event, :url => @url) do |f|
+= semantic_form_for(@event, url: @url) do |f|
   %section#basic
-  = f.inputs :name => "Session Information" do
-    - if !@conference.call_for_papers.schedule_changes && @event.state == "confirmed" && !organizer_or_admin?
+  = f.inputs name: 'Session Information' do
+    - if !@conference.call_for_papers.schedule_changes && @event.state == 'confirmed' && !organizer_or_admin?
       Title: #{@event.title}
       %br
       %br
     - else
-      = f.input :title, :as => :string, :required => true
-    = f.input :subtitle, :as => :string
+      = f.input :title, as: :string, required: true
+    = f.input :subtitle, as: :string
   %section#details
-    - if (@event.state === "unconfirmed" || @event.state === "confirmed") && !organizer_or_admin? && !@conference.call_for_papers.schedule_changes
+    - if (@event.state === 'unconfirmed' || @event.state === 'confirmed') && !organizer_or_admin? && !@conference.call_for_papers.schedule_changes
       Event type: #{@event.event_type.title}
       %br
       %br
     - else
-      = f.input :event_type_id,:as => :select, :collection => @event_types.map {|x| ["#{x.title} - #{show_time(x.length)}", x.id]}, :include_blank => false, :label => "Session Type"
-    = f.input :difficulty_level, :as => :select, :collection => @conference.difficulty_levels, :include_blank => "(Please select)" if @conference.use_difficulty_levels
+      = f.input :event_type_id, as: :select,
+        collection: @event_types.map {|x| ["#{x.title} - #{show_time(x.length)}", x.id]},
+        include_blank: false, label: 'Session Type'
+    = f.input :difficulty_level, as: :select, collection: @conference.difficulty_levels, include_blank: '(Please select)' if @conference.use_difficulty_levels
     = f.input :require_registration
-    = f.input :abstract, :input_html => {:rows => 5, :class => "span11"},
-      :required => true, :label => "Session Abstract"
+    = f.input :abstract, input_html: {rows: 5, class: 'span11'},
+      required: true, label: 'Session Abstract'
     You have used
     %span#abstract-count #{@event.abstract_word_count}
     words.  Abstracts must be between
@@ -30,33 +32,33 @@
     words.
     %br
     %br
-    = f.input :description, :input_html => {:rows => 5, :class=> "span11"}, :hint => "This will only be shown to organizers, not to attendees."
-    = f.input :media_type, :as => :select, :label => "Media Type", :collection => Conference.media_types.values, :include_blank => false
-    %p{:class => "help-block media-type", :id => "youtube-help"} Go to your YouTube video, click on "share" and copy everything behind http://youtu.be/"
-    %p{:class => "help-block media-type", :id => "slideshare-help", :style => "display:none"} Go to your SlideShare, click on "share" -> "embed" and copy the id
-    %p{:class => "help-block media-type", :id => "flickr-help", :style => "display:none"} Go to your flickr image, click on "Grab the link" -> "Show short url" and copy everything behind https://flic.kr/p/
-    %p{:class => "help-block media-type", :id => "vimeo-help", :style => "display:none"} Go to your vimeo video, click on "share" and copy everything behind http://vimeo.com/
-    %p{:class => "help-block media-type", :id => "speakerdeck-help", :style => "display:none"} Go to your SpeakerDeck, click on "share" -> "embed" and copy the data-id
-    %p{:class => "help-block media-type", :id => "instagram-help", :style => "display:none"} Go to your Instagram photo page and copy everything behind instagram.com/p/ (without trailing /# hash symbol)
-    = f.input :media_id, :label => "Media ID", :as => :string
+    = f.input :description, input_html: {rows: 5, class: 'span11'}, hint: 'This will only be shown to organizers, not to attendees.'
+    = f.input :media_type, as: :select, label: 'Media Type', collection: Conference.media_types.values, include_blank: false
+    %p{class: 'help-block media-type', id: 'youtube-help'} Go to your YouTube video, click on "share" and copy everything behind http://youtu.be/
+    %p{class: 'help-block media-type', id: 'slideshare-help', style: 'display:none'} Go to your SlideShare, click on "share" -> "embed" and copy the id
+    %p{class: 'help-block media-type', id: 'flickr-help', style: 'display:none'} Go to your flickr image, click on "Grab the link" -> "Show short url" and copy everything behind https://flic.kr/p/
+    %p{class: 'help-block media-type', id: 'vimeo-help', style: 'display:none'} Go to your vimeo video, click on "share" and copy everything behind http://vimeo.com/
+    %p{class: 'help-block media-type', id: 'speakerdeck-help', style: 'display:none'} Go to your SpeakerDeck, click on "share" -> "embed" and copy the data-id
+    %p{class: 'help-block media-type', id: 'instagram-help', style: 'display:none'} Go to your Instagram photo page and copy everything behind instagram.com/p/ (without trailing /# hash symbol)
+    = f.input :media_id, label: 'Media ID', as: :string
 
   %section#information
-  = f.inputs :name => "Your Information" do
+  = f.inputs name: 'Your Information' do
     = semantic_fields_for @person do |p|
-      = p.input :public_name, :as => :string, :required => true
-      = p.input :affiliation, :as => :string, :hint => "This could be a company, a user group, or nothing at all."
-      = p.input :biography, :required => true, :input_html => {:rows => 5, :class => 'span11', "onkeyup" => "word_count(this, 'biography-count', 150)"}
+      = p.input :public_name, as: :string, required: true
+      = p.input :affiliation, as: :string, hint: 'This could be a company, a user group, or nothing at all.'
+      = p.input :biography, required: true, input_html: {rows: 5, class: 'span11', "onkeyup" => "word_count(this, 'biography-count', 150)"}
       You have used
       %span#biography-count #{@person.biography_word_count}
       words.  Biographies are limited to 150 words.
       %br
       %br
   %section#speakers
-  = f.inputs :name => "Additional Speakers" do
+  = f.inputs name: 'Additional Speakers' do
     Will there be any additional speakers?  If so, please enter their full names, email address, and a short
     biography for each.
-    = f.input :proposal_additional_speakers, :input_html => {:rows => 5, :class => "span11"}, :label => false
-  = f.action :submit, :as => :button, :label => "Submit Session",  :button_html => {:class => "btn btn-primary"}
+    = f.input :proposal_additional_speakers, input_html: {rows: 5, class: 'span11'}, label: false
+  = f.action :submit, as: :button, label: 'Submit Session',  button_html: {class: 'btn btn-primary'}
 
 :javascript
   var maxcount = 0;

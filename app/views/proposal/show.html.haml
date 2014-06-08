@@ -6,16 +6,16 @@
         %br
         %small
           = @event.subtitle
-      = link_to "Schedule", conference_schedule_path(@conference.short_title), :class =>"btn btn-success pull-right"
-      - if has_role?(current_user, "admin")
-        = link_to "Edit", edit_admin_conference_event_path(@conference.short_title, @event), :class => "btn btn-mini btn-primary pull-right"
+      = link_to 'Schedule', conference_schedule_path(@conference.short_title), class: 'btn btn-success pull-right'
+      - if has_role?(current_user, 'admin')
+        = link_to 'Edit', edit_admin_conference_event_path(@conference.short_title, @event), class: 'btn btn-mini btn-primary pull-right'
 .row
   .col-md-3
     %p
       = simple_format(@event.abstract)
     %dl
       %dt Date:
-      %dd= @event.start_time.strftime("%Y %B %e %H:%M") if @event.start_time
+      %dd= @event.start_time.strftime('%Y %B %e %H:%M') if @event.start_time
       %dt Duration:
       %dd= show_time(@event.event_type.length)
       %dt Room:
@@ -29,15 +29,15 @@
       %dt Track:
       %dd
         - if @event.track_id
-          %span.label{:style =>"background-color: #{@event.track.color};"}
+          %span.label{style: "background-color: #{@event.track.color};"}
             = @event.track.name
       %dt Difficulty:
       %dd
         - if @event.difficulty_level_id
-          %span.label{:style =>"background-color: #{@event.difficulty_level.color};"}
+          %span.label{style: "background-color: #{@event.difficulty_level.color};"}
             = @event.difficulty_level.title
     - if @event.require_registration
-      = link_to "Registration required!", register_conference_path(@conference.short_title), :class => "btn btn-xs btn-warning"
+      = link_to 'Registration required!', register_conference_path(@conference.short_title), class: 'btn btn-xs btn-warning'
   .col-md-9
     .row
       .col-md-12
@@ -48,10 +48,10 @@
               Meanwhile...
           - unless @conference.media_id.blank?
             .flexvideo
-              = render partial: "shared/media_item", locals: {media_type: @conference.media_type, media_id: @conference.media_id}
+              = render partial: 'shared/media_item', locals: {media_type: @conference.media_type, media_id: @conference.media_id}
         - else
           .flexvideo
-            = render partial: "shared/media_item", locals: {media_type: @event.media_type, media_id: @event.media_id}
+            = render partial: 'shared/media_item', locals: {media_type: @event.media_type, media_id: @event.media_id}
     .row
       .speakerinfo
         .col-md-8
@@ -69,4 +69,4 @@
           -if @speaker.biography?
             = simple_format(@speaker.biography)
         .col-md-4
-          = image_tag @speaker.gravatar_url(:size => 200), :class => "img-responsive img-rounded"
+          = image_tag @speaker.gravatar_url(size: 200), class: 'img-responsive img-rounded'
