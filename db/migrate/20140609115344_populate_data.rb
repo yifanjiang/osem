@@ -1,5 +1,5 @@
 class PopulateData < ActiveRecord::Migration
-  def change
+  def up
     # Create users
     user_admin = User.new(email: 'admin@email.com', password: Devise.friendly_token[0,20])
     user_admin.skip_confirmation!
@@ -65,7 +65,13 @@ class PopulateData < ActiveRecord::Migration
         event.save!
       end
     end
-
+  
+    # Create call for papers
+    Conference.all.each do |c|
+      cfp= CallForPapers.new(start_date: Date.today, end_date: Date.today + c.id + 20, description: "description for cfp of conference #{c.id}")
+      cfp.conference_id = c.id
+      cfp.save!
+    end
   end
-
+    
 end
