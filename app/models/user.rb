@@ -1,4 +1,7 @@
 class User < ActiveRecord::Base
+  include Gravtastic
+  gravtastic :size => 32
+
 
   # Include default devise modules. Others available are:
   # :token_authenticatable, :confirmable,
@@ -8,16 +11,22 @@ class User < ActiveRecord::Base
          :confirmable
 
   has_and_belongs_to_many :roles
-  has_one :person, :inverse_of => :user
+#   has_one :person, :inverse_of => :user
 
-  attr_accessible :email, :password, :password_confirmation, :remember_me, :role_id, :role_ids, :person_attributes
-  accepts_nested_attributes_for :person
+  attr_accessible :email, :password, :password_confirmation, :remember_me, :role_id, :role_ids,
+                  :name, :email_public, :biography, :nickname, :affiliation
+
+  has_many :event_users, :dependent => :destroy
+  has_many :events, -> { uniq }, :through => :event_users
+  has_many :registrations, :dependent => :destroy
+  has_many :votes, :dependent => :destroy
+  has_many :voted_events, :through => :votes, :source => :events
+
   accepts_nested_attributes_for :roles
 
   before_create :setup_role
-  before_create :create_person
 
-  delegate :last_name, :first_name, :public_name, to: :person
+#   delegate :last_name, :first_name, :public_name, to: :person
 
   def role?(role)
     Rails.logger.debug("Checking role in user")
@@ -52,10 +61,10 @@ class User < ActiveRecord::Base
     !confirmed_at.nil?
   end
 
-  private
-  def create_person
-    # TODO Search people for existing email address, add to their account
-    build_person(email: email) if person.nil?
-    true
-  end
+#   private
+#   def create_person
+#     # TODO Search people for existing email address, add to their account
+#     build_person(email: email) if person.nil?
+#     true
+#   end
 end
