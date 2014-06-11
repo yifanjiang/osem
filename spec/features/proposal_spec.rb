@@ -36,15 +36,14 @@ feature Event do
       select('YouTube', from: 'event[media_type]')
       fill_in 'event_media_id', with: '123456'
 
-      fill_in 'person_biography', with: 'Lorem ipsum biography'
-      fill_in 'person_public_name', with: 'Example User'
+      fill_in 'user_biography', with: 'Lorem ipsum biography'
+      fill_in 'user_public_name', with: 'Example User'
 
       click_button 'Submit Session'
       expect(current_path).to eq(edit_user_registration_path)
 
-      fill_in 'user_person_attributes_first_name', with: 'Example'
-      fill_in 'user_person_attributes_last_name', with: 'User'
-      fill_in 'user_person_attributes_biography', with: 'Lorem ipsum biography'
+      fill_in 'user_attributes_name', with: 'Example User'
+      fill_in 'user_attributes_biography', with: 'Lorem ipsum biography'
 
       click_button 'Update'
 

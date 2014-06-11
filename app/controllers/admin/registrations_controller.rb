@@ -4,9 +4,9 @@ class Admin::RegistrationsController < ApplicationController
   def index
     session[:return_to] ||= request.referer
     @pdf_filename = "#{@conference.title}.pdf"
-    @registrations = @conference.registrations.includes(:person).order("registrations.created_at ASC")
+    @registrations = @conference.registrations.includes(:user).order("registrations.created_at ASC")
     @attended = @conference.registrations.where("attended = ?", true).count
-    @headers = %w[first_name last_name email irc_nickname other_needs arrival departure attended]
+    @headers = %w[name email nickname other_needs arrival departure attended]
   end
 
   def change_field
@@ -20,26 +20,26 @@ class Admin::RegistrationsController < ApplicationController
 
       redirect_to admin_conference_registrations_path(@conference.short_title)
       flash[:notice] = "Updated '#{params[:view_field]}' => #{@registration.attended} for
-                        #{(Person.where("id = ?", @registration.person_id).first).email}"
+                        #{(User.where("id = ?", @registration.user_id).first).email}"
   end
 
   def edit
     @registration = @conference.registrations.where("id = ?", params[:id]).first
-    @person = Person.where("id = ?", @registration.person_id).first
+    @user = User.where("id = ?", @registration.user_id).first
   end
 
   def update
     @registration = @conference.registrations.where("id = ?", params[:id]).first
-    @person = Person.where("id = ?", @registration.person_id).first
+    @user = User.where("id = ?", @registration.user_id).first
     begin
-      @person.update_attributes!(params[:registration][:person_attributes])
-      params[:registration].delete :person_attributes
+      @user.update_attributes!(params[:registration][:user_attributes])
+      params[:registration].delete :user_attributes
       if params[:registration][:supporter_registration]
         @registration.supporter_registration.update_attributes(params[:registration][:supporter_registration_attributes])
         params[:registration].delete :supporter_registration_attributes
       end
       @registration.update_attributes!(params[:registration])
-      flash[:notice] = "Successfully updated registration for #{@person.public_name} #{@person.email}"
+      flash[:notice] = "Successfully updated registration for #{@user.name} #{@user.email}"
       redirect_to(admin_conference_registrations_path(@conference.short_title))
     rescue Exception => e
       Rails.logger.debug e.backtrace.join("\n")
@@ -51,41 +51,36 @@ class Admin::RegistrationsController < ApplicationController
 
   def new
     @user = User.new
-    @person = Person.new
-    @registration = @person.registrations.new
+    @registration = @user.registrations.new
     @supporter_registration = @conference.supporter_registrations.new
     @conference = Conference.find_by(short_title: params[:conference_id])
   end
-  
+
   def create
     @conference = Conference.find_by(short_title: params[:conference_id])
-    email = params[:registration][:person].delete(:user)[:email]
-    @person = Person.find_by_email email
+    email = params[:registration][:user][:email]
+    @user = User.find_by_email email
     @registration = nil
-    @user = nil
-    
-    if @person
-      if @person.registrations.where(conference_id: @conference).empty?
-        @person.attributes = params[:registration][:person] # Should we really modify person information?
+
+    if @user
+      if @user.registrations.where(conference_id: @conference).empty?
+        @user.attributes = params[:registration][:user] # Should we really modify user information?
       else
         redirect_to admin_conference_registrations_path(@conference.short_title)
-        flash[:notice] = "#{@person.email} is already registred!"
+        flash[:notice] = "#{@user.email} is already registred!"
         return
       end
     else
-      @person = Person.new params[:registration][:person]
+      @user = User.new params[:registration][:user]
     end
-    @person.email = email
 
-    @user = @person.user
-    if @user.nil?
-      @user = @person.build_user
+    if @user.new_record?
       @user.password = rand(36**6).to_s(36)
       @user.skip_confirmation!
     end
-    @user.email = @person.email
+    @user.email = email
 
-    @registration = @person.registrations.build
+    @registration = @user.registrations.build
     if params[:registration][:supporter_registration]
       @supporter_registration = @registration.build_supporter_registration
       @supporter_registration.attributes = params[:registration][:supporter_registration]
@@ -93,7 +88,7 @@ class Admin::RegistrationsController < ApplicationController
     else
       @supporter_registration = @conference.supporter_registrations.new
     end
-    params[:registration].delete :person
+    params[:registration].delete :user
     params[:registration].delete :user
     params[:registration].delete :supporter_registration
     @registration.attributes = params[:registration]
@@ -101,11 +96,10 @@ class Admin::RegistrationsController < ApplicationController
     @registration.attended = true
     begin
       Registration.transaction do
-        @person.save!
         @user.save!
         @registration.save!
       end
-      flash[:notice] = "Successfully created new registration for #{@person.email}."
+      flash[:notice] = "Successfully created new registration for #{@user.email}."
       redirect_to admin_conference_registrations_path(@conference.short_title)
     rescue ActiveRecord::RecordInvalid
       render action: "new"
@@ -115,11 +109,11 @@ class Admin::RegistrationsController < ApplicationController
   def destroy
     if has_role?(current_user, "Admin")
       registration = @conference.registrations.where(:id => params[:id]).first
-      person = Person.where("id = ?", registration.person_id).first
+      user = User.where("id = ?", registration.user_id).first
       
       begin registration.destroy
         redirect_to admin_conference_registrations_path
-        flash[:notice] = "Deleted registration for #{person.public_name} #{person.email}"
+        flash[:notice] = "Deleted registration for #{user.name} #{user.email}"
       rescue Exception => e
         Rails.logger.debug e.backtrace.join("\n")
         redirect_to(admin_conference_registrations_path(@conference.short_title),

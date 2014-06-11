@@ -15,7 +15,7 @@
       Your public name (required)
       %br
       = f.fields_for :user do |p|
-        = p.text_field :user, :for => :user
+        = p.input :name
 
       - if @conference.questions
         = render :partial => "questions", :locals => {:f => f}
