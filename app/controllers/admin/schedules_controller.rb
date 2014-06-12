@@ -1,4 +1,4 @@
-class Admin::ScheduleController < ApplicationController
+class Admin::SchedulesController < ApplicationController
   before_filter :verify_organizer
   skip_before_filter :verify_authenticity_token, :only => [:update]
   layout "schedule"
