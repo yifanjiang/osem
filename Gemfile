@@ -22,6 +22,7 @@ gem 'cancan'
 gem 'transitions', :require => %w( transitions active_record/transitions )
 
 # Use acts_as_commentable_with_threading for comments
+gem 'awesome_nested_set', '~> 3.0.0.rc.3'
 gem 'acts_as_commentable_with_threading'
 
 # Use haml as templating language
