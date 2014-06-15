@@ -72,7 +72,6 @@ class Admin::ConferenceController < ApplicationController
   end
 
   def update
-    @conference = Conference.find_by(short_title: params[:id])
     short_title = @conference.short_title
     if @conference.update_attributes(params[:conference])
       redirect_to(edit_admin_conference_path(id: @conference.short_title),
@@ -85,7 +84,6 @@ class Admin::ConferenceController < ApplicationController
   end
 
   def show
-    @conference = Conference.find_by(short_title: params[:id])
     @conference_progress = @conference.get_status
     @top_submitter = @conference.get_top_submitter
     @event_distribution = @conference.event_distribution
@@ -98,7 +96,6 @@ class Admin::ConferenceController < ApplicationController
 
   def edit
     @conferences = Conference.all
-    @conference = Conference.find_by(short_title: params[:id])
     respond_to do |format|
       format.html
       format.json { render json: @conference.to_json }

@@ -81,11 +81,9 @@ Osem::Application.routes.draw do
     resource :schedule, :only => [] do
       get "/" => "schedule#index"
     end
-    member do
-      get "/register" => "conference_registration#register"
-      patch "/register" => "conference_registration#update"
-      delete "/register" => "conference_registration#unregister"
-    end
+    get "/register" => "conference_registration#register"
+    patch "/register" => "conference_registration#update"
+    delete "/register" => "conference_registration#unregister"
   end
 
   namespace :api, defaults: {format: 'json'} do

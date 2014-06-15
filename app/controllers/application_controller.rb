@@ -3,6 +3,7 @@ class ApplicationController < ActionController::Base
   protect_from_forgery
   before_filter :get_conferences
   before_filter :store_location
+  load_resource :conference, find_by: :short_title, if: lambda { |x| x.request.url.include?('conference') }
 
   def store_location
     session[:return_to] = request.fullpath if request.get? and controller_name != "user_sessions" and controller_name != "sessions"
@@ -38,7 +39,6 @@ class ApplicationController < ActionController::Base
       return false
     end
 
-    @conference = Conference.find_by(short_title: params[:conference_id])
     true
   end
 
@@ -63,9 +63,9 @@ class ApplicationController < ActionController::Base
     redirect_to root_path unless has_role?(current_user, 'admin')
   end
 
-  def current_ability
-    @current_ability ||= AdminAbility.new(current_user)
-  end
+#   def current_ability
+#     @current_ability ||= AdminAbility.new(current_user)
+#   end
 
   rescue_from CanCan::AccessDenied do |exception|
     Rails.logger.debug("Access denied!")

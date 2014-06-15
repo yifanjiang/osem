@@ -7,7 +7,6 @@ class ProposalController < ApplicationController
     @person = current_user.person if current_user
     #FIXME: @conference also comes from verify_user, but we need setup also in show
     # which can be accessed anonymusly
-    @conference = Conference.find_by(short_title: params[:conference_id])
     @url = conference_proposal_index_path(@conference.short_title)
     @event_types = @conference.event_types
   end
@@ -138,7 +137,7 @@ class ProposalController < ApplicationController
 
     registration = person.registrations.where(:conference_id => @conference.id).first
     if registration.nil?
-      redirect_to(register_conference_path(@conference.short_title), :notice => 'Event was successfully submitted. You probably want to register for the conference now!')
+      redirect_to(conference_register_path(@conference.short_title), :notice => 'Event was successfully submitted. You probably want to register for the conference now!')
     else
       redirect_to(conference_proposal_index_path(:conference_id => @conference.short_title), :notice => 'Event was successfully submitted.')
     end
@@ -159,7 +158,7 @@ class ProposalController < ApplicationController
       end
 
       if !@conference.user_registered?(current_user)
-        redirect_to(register_conference_path(@conference.short_title), :notice => "Event was confirmed. Please register to attend the conference.")
+        redirect_to(conference_register_path(@conference.short_title), :notice => "Event was confirmed. Please register to attend the conference.")
         return
       end
       redirect_to(conference_proposal_index_path(:conference_id => @conference.short_title), :notice => 'Event was confirmed.')

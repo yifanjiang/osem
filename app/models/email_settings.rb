@@ -8,7 +8,7 @@ class EmailSettings < ActiveRecord::Base
         "email" => person.email,
         "name" => person.public_name,
         "conference" => conference.title,
-        "registrationlink" => Rails.application.routes.url_helpers.register_conference_url(conference.short_title, :host => CONFIG["url_for_emails"])
+        "registrationlink" => Rails.application.routes.url_helpers.conference_register_url(conference.short_title, :host => CONFIG["url_for_emails"])
     }
 
     if !event.nil?
