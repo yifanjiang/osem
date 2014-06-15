@@ -32,7 +32,7 @@ class ConferenceRegistrationController < ApplicationController
 
       if regs.count != 0
         if regs.where(email: person.email).count == 0
-          redirect_to(conference_register_path(id: @conference.short_title), alert: "This code is already in use.  Please contact #{@conference.contact_email} for assistance.")
+          redirect_to(conference_register_path(@conference.short_title), alert: "This code is already in use.  Please contact #{@conference.contact_email} for assistance.")
           return
         end
       end
@@ -65,7 +65,7 @@ class ConferenceRegistrationController < ApplicationController
       end
     rescue Exception => e
       Rails.logger.debug e.backtrace.join("\n")
-      redirect_to(conference_register_path(conference_id: @conference.short_title), alert: 'Registration failed:' + e.message)
+      redirect_to(conference_register_path(@conference.short_title), alert: 'Registration failed:' + e.message)
       return
     end
 
@@ -77,7 +77,7 @@ class ConferenceRegistrationController < ApplicationController
         Mailbot.registration_mail(@conference, current_user.person).deliver
       end
     end
-    redirect_to(conference_register_path(conference_id: @conference.short_title), notice: redirect_message)
+    redirect_to(conference_register_path(@conference.short_title), notice: redirect_message)
   end
 
   def unregister
