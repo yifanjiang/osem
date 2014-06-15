@@ -61,10 +61,15 @@ feature Event do
       sign_out
       sign_in admin
 
-      # Reject proposal
+      # Show event from admin panel
+      visit admin_conference_event_path(conference.short_title, event)
+      expect(page.has_content?('Example Proposal')).to be true
+
+      # Show event in admin 'Events' list
       visit admin_conference_events_path(conference.short_title)
       expect(page.has_content?('Example Proposal')).to be true
 
+      # Reject proposal
       click_button 'New'
       click_link "reject_event_#{event.id}"
       expect(flash).to eq('Event rejected!')
