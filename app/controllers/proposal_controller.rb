@@ -24,7 +24,7 @@ class ProposalController < ApplicationController
       end
     rescue Exception => e
       Rails.logger.debug("Proposal failure in verify_access: #{e.message}")
-      redirect_to(conference_proposal_index_path(:conference_id => @conference.short_title), :alert => 'Invalid or uneditable proposal.')
+      redirect_to(conference_proposal_index_path(conference_id: @conference.short_title), alert: 'Invalid or uneditable proposal.')
     end
   end
 
@@ -55,7 +55,7 @@ class ProposalController < ApplicationController
     @attachments = @event.event_attachments
 
     if @event.nil?
-      redirect_to(conference_proposal_index_path(:conference_id => @conference.short_title), :alert => 'Invalid or uneditable proposal.')
+      redirect_to(conference_proposal_index_path(conference_id: @conference.short_title), alert: 'Invalid or uneditable proposal.')
     end
   end
 
@@ -67,12 +67,12 @@ class ProposalController < ApplicationController
     params[:event].delete :person
 
     if submitter[:public_name].blank?
-      redirect_to edit_conference_proposal_path(@conference.short_title, @event), :alert => "Your public name cannot be blank"
+      redirect_to edit_conference_proposal_path(@conference.short_title, @event), alert: 'Your public name cannot be blank'
       return
     end
 
     if submitter[:biography].blank?
-      redirect_to edit_conference_proposal_path(@conference.short_title, @event), :alert => "Your biography cannot be blank"
+      redirect_to edit_conference_proposal_path(@conference.short_title, @event), alert: 'Your biography cannot be blank'
       return
     end
 
@@ -84,9 +84,9 @@ class ProposalController < ApplicationController
 
     begin
       event.update_attributes!(params[:event])
-      redirect_to(conference_proposal_index_path(:conference_id => @conference.short_title), :notice => "'#{event.title}' was successfully updated.")
+      redirect_to(conference_proposal_index_path(conference_id: @conference.short_title), notice: "'#{event.title}' was successfully updated.")
     rescue Exception => e
-      redirect_to edit_conference_proposal_path(@conference.short_title, @event), :alert => e.message
+      redirect_to edit_conference_proposal_path(@conference.short_title, @event), alert: e.message
     end
   end
 
@@ -108,8 +108,8 @@ class ProposalController < ApplicationController
     end
 
     if submitter[:biography].blank?
-      flash[:error] = "Your biography cannot be blank."
-      render :action => "new"
+      flash[:error] = 'Your biography cannot be blank.'
+      render :action => 'new'
       return
     end
 
@@ -118,10 +118,10 @@ class ProposalController < ApplicationController
       person.update_attributes(submitter)
     end
 
-    @event.event_people.new(:person => person,
-                           :event_role => "submitter")
-    @event.event_people.new(:person => person,
-                           :event_role => "speaker")
+    @event.event_people.new(person; person,
+                           event_role: 'submitter')
+    @event.event_people.new(person: person,
+                           event_role: 'speaker')
 
     begin
       @event.save!
@@ -135,11 +135,11 @@ class ProposalController < ApplicationController
       return
     end
 
-    registration = person.registrations.where(:conference_id => @conference.id).first
+    registration = person.registrations.where(conference_id: @conference.id).first
     if registration.nil?
-      redirect_to(conference_register_path(@conference.short_title), :notice => 'Event was successfully submitted. You probably want to register for the conference now!')
+      redirect_to(conference_register_path(@conference.short_title), notice: 'Event was successfully submitted. You probably want to register for the conference now!')
     else
-      redirect_to(conference_proposal_index_path(:conference_id => @conference.short_title), :notice => 'Event was successfully submitted.')
+      redirect_to(conference_proposal_index_path(conference_id: @conference.short_title), notice: 'Event was successfully submitted.')
     end
   end
 
@@ -153,17 +153,17 @@ class ProposalController < ApplicationController
       begin
         @event.confirm!
       rescue InvalidTransition => e
-        redirect_to(conference_proposal_index_path(:conference_id => @conference.short_title), :alert => "Event was NOT confirmed: #{e.message}")
+        redirect_to(conference_proposal_index_path(conference_id: @conference.short_title), alert: "Event was NOT confirmed: #{e.message}")
         return
       end
 
       if !@conference.user_registered?(current_user)
-        redirect_to(conference_register_path(@conference.short_title), :notice => "Event was confirmed. Please register to attend the conference.")
+        redirect_to(conference_register_path(@conference.short_title), notice: 'Event was confirmed. Please register to attend the conference.')
         return
       end
-      redirect_to(conference_proposal_index_path(:conference_id => @conference.short_title), :notice => 'Event was confirmed.')
+      redirect_to(conference_proposal_index_path(conference_id: @conference.short_title), notice: 'Event was confirmed.')
     else
-      redirect_to(conference_proposal_index_path(:conference_id => @conference.short_title), :alert => 'Event was NOT confirmed!')
+      redirect_to(conference_proposal_index_path(conference_id: @conference.short_title), alert: 'Event was NOT confirmed!')
     end
   end
 

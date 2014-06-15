@@ -1,8 +1,9 @@
 Osem::Application.routes.draw do
 
-  get 'conference/show'
-
   devise_for :users, :controllers => { :registrations => :registrations }, :path => 'accounts'
+
+  get 'conference/show'
+  get '/admin' => redirect('/admin/conference')
 
   namespace :admin do
     resources :users
@@ -73,36 +74,37 @@ Osem::Application.routes.draw do
   end
 
   resources :conference, only: [:show] do
+
     resources :proposal do
       resources :event_attachment, :controller => "event_attachments"
       patch '/confirm' => 'proposal#confirm'
       patch '/restart' => 'proposal#restart'
     end
+
     resource :schedule, :only => [] do
-      get "/" => "schedule#index"
+      get '/' => 'schedule#index'
     end
-    get "/register" => "conference_registration#register"
-    patch "/register" => "conference_registration#update"
-    delete "/register" => "conference_registration#unregister"
+
+    get '/register' => 'conference_registration#register'
+    patch '/register' => 'conference_registration#update'
+    delete '/register' => 'conference_registration#unregister'
   end
 
   namespace :api, defaults: {format: 'json'} do
     namespace :v1 do
-      resources :conferences, :only => :index do
-        resources :conferences, :only => :index
-        resources :rooms, :only => :index
-        resources :tracks, :only => :index
-        resources :speakers, :only => :index
-        resources :events, :only => :index
+      resources :conferences, only: :index do
+        resources :conferences, only: :index
+        resources :rooms, only: :index
+        resources :tracks, only: :index
+        resources :speakers, only: :index
+        resources :events, only: :index
       end
-      resources :rooms, :only => :index
-      resources :tracks, :only => :index
-      resources :speakers, :only => :index
-      resources :events, :only => :index
+      resources :rooms, only: :index
+      resources :tracks, only: :index
+      resources :speakers, only: :index
+      resources :events, only: :index
     end
   end
 
-  get "/admin" => redirect("/admin/conference")
-
-  root :to => "home#index"
+  root to: 'home#index'
 end
