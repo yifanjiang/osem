@@ -1,163 +1,150 @@
 class ProposalController < ApplicationController
-  before_filter :verify_user, :except => [:show]
-  before_filter :setup
-  before_filter :verify_access, :only => [:edit, :update, :destroy, :confirm]
-
-  def setup
-    @person = current_user.person if current_user
-    #FIXME: @conference also comes from verify_user, but we need setup also in show
-    # which can be accessed anonymusly
-    @conference = Conference.find_all_by_short_title(params[:conference_id]).first
-    @url = conference_proposal_index_path(@conference.short_title)
-    @event_types = @conference.event_types
-  end
-
-  def verify_access
-    if params.has_key? :proposal_id
-      params[:id] = params[:proposal_id]
-    end
-
-    begin
-      if !organizer_or_admin?
-        @event = @person.events.find(params[:id])
-      else
-        @event = Event.find(params[:id])
-      end
-    rescue Exception => e
-      Rails.logger.debug("Proposal failure in verify_access: #{e.message}")
-      redirect_to(conference_proposal_index_path(:conference_id => @conference.short_title), :alert => 'Invalid or uneditable proposal.')
-    end
-  end
+  before_filter :authenticate_user!, except: [:show, :new, :create]
+  load_resource :conference, find_by: :short_title
+  load_and_authorize_resource :event, parent: false, through: :conference
 
   def index
-    @events = @person.proposals @conference
-  end
-
-  def destroy
-    @person.withdraw_proposal(params[:id])
-    redirect_to(conference_proposal_index_path(:conference_id => @conference.short_title), :alert => 'Proposal withdrawn.')
-  end
-
-  def new
-    @event = Event.new
-  end
-
-  def edit
-    @url = conference_proposal_path(@conference.short_title, params[:id])
-    @event_types = @conference.event_types
-    @attachments = @event.event_attachments
-
-    if @event.nil?
-      redirect_to(conference_proposal_index_path(:conference_id => @conference.short_title), :alert => 'Invalid or uneditable proposal.')
-    end
-  end
-
-  def update
-    session[:return_to] ||= request.referer
-    submitter = params[:person]
-
-    params[:event].delete :people_attributes
-    params[:event].delete :person
-
-    if submitter[:public_name].blank?
-      redirect_to edit_conference_proposal_path(@conference.short_title, @event), :alert => "Your public name cannot be blank"
-      return
-    end
-
-    if submitter[:biography].blank?
-      redirect_to edit_conference_proposal_path(@conference.short_title, @event), :alert => "Your biography cannot be blank"
-      return
-    end
-
-    if submitter[:public_name] != @person.public_name || submitter[:biography] != @person.biography
-      @person.update_attributes(submitter)
-    end
-
-    event = Event.find_by_id(params[:id])
-
-    begin
-      event.update_attributes!(params[:event])
-      redirect_to(conference_proposal_index_path(:conference_id => @conference.short_title), :notice => "'#{event.title}' was successfully updated.")
-    rescue Exception => e
-      redirect_to edit_conference_proposal_path(@conference.short_title, @event), :alert => e.message
-    end
-  end
-
-  def create
-    person = current_user.person
-    session[:return_to] ||= request.referer
-
-    event_params = params[:event]
-    submitter = params[:person]
-    params[:event].delete :person
-
-    @event = Event.new(event_params)
-    @event.conference = @conference
-
-    if submitter[:public_name].blank?
-      flash[:error] = "Your public name cannot be blank."
-      render :action => "new"
-      return
-    end
-
-    if submitter[:biography].blank?
-      flash[:error] = "Your biography cannot be blank."
-      render :action => "new"
-      return
-    end
-
-    # First, update the submitter's info, if they've changed anything
-    if submitter[:public_name] != person.public_name || submitter[:biography] != person.biography
-      person.update_attributes(submitter)
-    end
-
-    @event.event_people.new(:person => person,
-                           :event_role => "submitter")
-    @event.event_people.new(:person => person,
-                           :event_role => "speaker")
-
-    begin
-      @event.save!
-    rescue Exception => e
-      @url = conference_proposal_index_path(@conference.short_title)
-      @event_types = @conference.event_types
-      @person = current_user.person
-
-      flash[:error] = "Could not submit proposal: #{e.message}"
-      render :action => 'new'
-      return
-    end
-
-    registration = person.registrations.where(:conference_id => @conference.id).first
-    if registration.nil?
-      redirect_to(register_conference_path(@conference.short_title), :notice => 'Event was successfully submitted. You probably want to register for the conference now!')
-    else
-      redirect_to(conference_proposal_index_path(:conference_id => @conference.short_title), :notice => 'Event was successfully submitted.')
-    end
+    @events = current_user.proposals(@conference)
   end
 
   def show
-    @event = Event.find(params[:id])
+    # FIXME: We should show more than the first speaker
     @speaker = @event.speakers.first || @event.submitter
   end
 
-  def confirm
-    if @event.transition_possible? :confirm
-      begin
-        @event.confirm!(:send_mail => params[:send_mail])
-      rescue Exception => e
-        redirect_to(conference_proposal_index_path(:conference_id => @conference.short_title), :alert => "Event was NOT confirmed: #{e.message}")
-        return
-      end
+  def new
+    @user = User.new
+    @url = conference_proposal_index_path(@conference.short_title)
+  end
 
-      if !@conference.user_registered?(current_user)
-        redirect_to(register_conference_path(@conference.short_title), :notice => "Event was confirmed. Please register to attend the conference.")
+  def edit
+    authorize! :edit, @event
+    @url = conference_proposal_path(@conference.short_title, params[:id])
+  end
+
+  def create
+    @url = conference_proposal_index_path(@conference.short_title)
+
+    unless current_user
+      @user = User.new(params[:user])
+      if @user.save
+        sign_in(@user)
+      else
+        flash[:error] = "Could not save user: #{@user.errors.full_messages.join(', ')}"
+        render action: 'new'
         return
       end
-      redirect_to(conference_proposal_index_path(:conference_id => @conference.short_title), :notice => 'Event was confirmed.')
+    end
+
+    params[:event].delete :user
+
+    @event = Event.new(params[:event])
+    @event.conference = @conference
+
+    @event.event_users.new(user: current_user,
+                           event_role: 'submitter')
+    @event.event_users.new(user: current_user,
+                           event_role: 'speaker')
+
+    unless @event.save
+      flash[:error] = "Could not submit proposal: #{@event.errors.full_messages.join(', ')}"
+      render action: 'new'
+      return
+    end
+
+    ahoy.track 'Event submission', title: 'New submission'
+
+    flash[:notice] = 'Proposal was successfully submitted.'
+    redirect_to conference_proposal_index_path(@conference.short_title)
+  end
+
+  def update
+    authorize! :update, @event
+    @url = conference_proposal_path(@conference.short_title, params[:id])
+
+    # First, update the submitter's info, if they've changed anything
+    current_user.assign_attributes(params[:user])
+    if current_user.changed?
+      current_user.save
+    end
+
+    # FIXME: Hmmmmm
+    params[:event].delete :users_attributes
+    params[:event].delete :user
+
+    if !@event.update(params[:event])
+      flash[:error] = "Could not update proposal: #{@event.errors.full_messages.join(', ')}"
+      render action: 'new'
+      return
+    end
+
+    redirect_to(conference_proposal_index_path(conference_id: @conference.short_title),
+                notice: 'Proposal was successfully updated.')
+  end
+
+  def destroy
+    authorize! :destroy, @event
+    @url = conference_proposal_path(@conference.short_title, params[:id])
+
+    begin
+      @event.withdraw
+    rescue Transitions::InvalidTransition
+      redirect_to(:back, error: "Event can't be withdrawn")
+      return
+    end
+
+    @event.save(validate: false)
+    redirect_to(conference_proposal_index_path(conference_id: @conference.short_title),
+                notice: 'Proposal was successfully withdrawn.')
+  end
+
+  def confirm
+    authorize! :update, @event
+    @url = conference_proposal_path(@conference.short_title, params[:id])
+
+    begin
+      @event.confirm!
+    rescue Transitions::InvalidTransition
+      redirect_to(:back, error: "Event can't be confirmed")
+      return
+    end
+
+    if !@event.save
+      flash[:error] = "Could not confirm proposal: #{@event.errors.full_messages.join(', ')}"
+      render action: 'new'
+      return
+    end
+
+    if @conference.user_registered?(current_user)
+      redirect_to(conference_proposal_index_path(@conference.short_title),
+                  notice: 'The proposal was confirmed.')
     else
-      redirect_to(conference_proposal_index_path(:conference_id => @conference.short_title), :alert => 'Event was NOT confirmed!')
+      redirect_to(new_conference_conference_registrations_path(conference_id: @conference.short_title),
+                  alert: 'The proposal was confirmed. Please register to attend the conference.')
     end
   end
 
+  def restart
+    authorize! :update, @event
+    @url = conference_proposal_path(@conference.short_title, params[:id])
+
+    begin
+      @event.restart
+    rescue Transitions::InvalidTransition
+      redirect_to(conference_proposal_index_path(conference_id: @conference.short_title),
+                  error: "The proposal can't be re-submitted.")
+      return
+    end
+
+    if !@event.save
+      flash[:error] = "Could not re-submit proposal: #{@event.errors.full_messages.join(', ')}"
+      render action: 'new'
+      return
+    end
+
+    redirect_to(conference_proposal_index_path(conference_id: @conference.short_title),
+                notice: "The proposal was re-submitted. The #{@conference.short_title} organizers will review it again.")
+  end
 end
+
+# FIXME: Introduce strong_parameters pronto!

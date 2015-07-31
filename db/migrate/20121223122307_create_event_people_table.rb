@@ -4,7 +4,7 @@ class CreateEventPeopleTable < ActiveRecord::Migration
       t.references :proposal
       t.references :person
       t.references :event
-      t.string :event_role, :null => false, :default => "participant"
+      t.string :event_role, null: false, default: 'participant'
       t.string :comment
 
       t.timestamps
@@ -15,4 +15,3 @@ class CreateEventPeopleTable < ActiveRecord::Migration
     drop_table :event_people
   end
 end
-

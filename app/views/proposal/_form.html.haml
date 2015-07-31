@@ -1,120 +1,35 @@
-.row
-  .span12
-    .tabbable
-      %ul.nav.nav-tabs
-        %li.active
-          = link_to "Proposal", "#proposal-content", "data-toggle"=>"tab"
-        %li
-          = link_to "Attachments", "#attachment-content", "data-toggle"=>"tab"
-      .tab-content
-        #proposal-content.tab-pane.active
-          = render 'proposal/proposal_form'
-        #attachment-content.tab-pane
-          = form_for EventAttachment.new, :url => conference_proposal_event_attachment_index_path(@conference.short_title, @event), :html => { :multipart => true, :id => "fileupload"  } do |f|
-            %table.table.table-striped
-              %thead
-                %th
-                %th
-                  %b Filename
-                %th
-                  %b Title
-                %th
-                  %b Size
-                %th
-                  %b Public
-                %th
-              %tbody.files
-            .row-fluid.fileupload-buttonbar
-              .btn.btn-success.fileinput-button
-                %i.icon-plus.icon-white
-                Add files...
-                = f.file_field :attachment
-                = f.hidden_field :event_id, :value => @event.id
+.container
+  .row
+    .col-md-12
+      .tabbable
+        %ul.nav.nav-tabs
+          %li.active
+            = link_to "Proposal", "#proposal-content", "data-toggle"=>"tab"
+          %li
+            = link_to 'Commercials', '#commercials-content', 'data-toggle'=>'tab'
+        .tab-content
+          #proposal-content.tab-pane.active
+            = render 'proposal/proposal_form'
+          #commercials-content.tab-pane
+            %p.text-muted
+              You can add commercials for your proposal. These commercials will be displayed on the
+              = link_to 'public proposal page.', conference_proposal_path(@conference.short_title, @event)
+              If you don't add a commercial, the conference commercial will be displayed!
 
-:javascript
-  $(document).ready( function() {
-      $('#fileupload').fileupload();
-      $('#fileupload').bind('fileuploadsubmit', function (e, data) {
-          var inputs = data.context.find(':input');
-          if (inputs.filter('[required][value=""]').first().focus().length) {
-              return false;
-          }
-          data.formData = inputs.serializeArray();
-      });
-      $.getJSON($('#fileupload').prop('action'), function (files) {
-        var fu = $('#fileupload').data('fileupload'),
-          template;
-        fu._adjustMaxNumberOfFiles(-files.length);
-        template = fu._renderDownload(files)
-          .appendTo($('#fileupload .files'));
-        fu._reflow = fu._transition && template.length &&
-          template[0].offsetWidth;
-        template.addClass('in');
-        $('#loading').remove();
-      });
-
-  } );
-
-:plain
-  <script id="template-upload" type="text/x-tmpl">
-    {% for (var i=0, file; file=o.files[i]; i++) { %}
-    <tr class="template-upload fade">
-      <td class="preview"><span class="fade"></span></td>
-      <td class="name"><span>{%=file.name%}</span></td>
-      <td class="name"><input type="text" name="title[]" value="{%=file.name%}"/></td>
-      <td class="size"><span>{%=o.formatFileSize(file.size)%}</span></td>
-      <td class="name"><input checked type="checkbox" name="public">Public</input></td>
-      {% if (file.error) { %}
-      <td class="error" colspan="2"><span class="label label-important">{%=locale.fileupload.error%}</span> {%=locale.fileupload.errors[file.error] || file.error%}</td>
-      {% } else if (o.files.valid && !i) { %}
-      <td>
-        <div class="progress progress-success progress-striped active"><div class="bar" style="width:0%;"></div></div>
-      </td>
-      <td class="start">{% if (!o.options.autoUpload) { %}
-        <button class="btn btn-primary">
-          <i class="icon-upload icon-white"></i>
-          <span>{%=locale.fileupload.start%}</span>
-        </button>
-        {% } %}</td>
-      {% } else { %}
-      <td colspan="2"></td>
-      {% } %}
-      <td class="cancel">{% if (!i) { %}
-        <button class="btn btn-warning">
-          <i class="icon-ban-circle icon-white"></i>
-          <span>{%=locale.fileupload.cancel%}</span>
-        </button>
-        {% } %}</td>
-    </tr>
-    {% } %}
-  </script>
-
-  <script id="template-download" type="text/x-tmpl">
-    {% for (var i=0, file; file=o.files[i]; i++) { %}
-      <tr class="template-download fade">
-        {% if (file.error) { %}
-          <td>{%=file.title%}</td>
-          <td class="name">{%=file.name%}</td>
-          <td class="size">{%=o.formatFileSize(file.size)%}</td>
-          <td class="error" colspan="2"><span class="label label-important">{%=locale.fileupload.error%}</span> {%=locale.fileupload.errors[file.error] || file.error%}</td>
-          {% } else { %}
-          <td class="preview">{% if (file.thumbnail_url) { %}
-            <a href="{%=file.url%}" title="{%=file.name%}" rel="gallery" download="{%=file.name%}"><img src="{%=file.thumbnail_url%}"></a>
-            {% } %}</td>
-          <td class="name">
-            <a href="{%=file.url%}" title="{%=file.name%}" rel="{%=file.thumbnail_url&&'gallery'%}" download="{%=file.name%}">{%=file.name%}</a>
-          </td>
-          <td>{%=file.title%}</td>
-          <td class="size">{%=o.formatFileSize(file.size)%}</td>
-          <td>{%=file.public%}</td>
-          <td colspan="2"></td>
-          {% } %}
-        <td class="delete">
-          <button class="btn btn-danger pull-right" data-type="{%=file.delete_type%}" data-url="{%=file.delete_url%}">
-            <i class="icon-trash icon-white"></i>
-            <span>{%=locale.fileupload.destroy%}</span>
-          </button>
-        </td>
-      </tr>
-      {% } %}
-  </script>
+            - @event.commercials.each_slice(3) do |slice|
+              .row
+                - slice.each do |commercial|
+                  .col-md-4
+                    .thumbnail
+                      %h3.text-center
+                        = commercial.commercial_type
+                      .flexvideo
+                        = render partial: 'shared/media_item', locals: { commercial_type: commercial.commercial_type, commercial_id: commercial.commercial_id }
+                      - if can? :update, commercial
+                        = link_to 'Edit', edit_conference_proposal_commercial_path(@conference.short_title, @event.id, commercial.id), class: 'btn btn-primary'
+                      - if can? :destroy, commercial
+                        = link_to 'Delete', conference_proposal_commercial_path(@conference.short_title, @event.id, commercial.id),
+                        :method => :delete, :data => { :confirm => 'Are you sure?' }, class: 'btn btn-danger'
+            - if can? :create, @event.commercials.new
+              %hr
+              = link_to 'Add Commercial', new_conference_proposal_commercial_path(@conference.short_title, @event.id), class: 'btn btn-primary'

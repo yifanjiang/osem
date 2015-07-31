@@ -1,40 +1,44 @@
-%li.nav-header
-  = current_user.person.public_name if current_user.person
+- unless CONFIG['authentication']['ichain']['enabled']
+  %li
+    = link_to(edit_user_registration_path) do
+      %span.fa.fa-wrench
+      Edit Account
 %li
-  = link_to(edit_user_registration_path) do
-    %i.icon-wrench
-    Edit Account
--if @conference and @conference.id
+  = link_to(edit_user_path(current_user.id)) do
+    %span.fa.fa-user
+    Edit Profile
+-if @conference and @conference.call_for_paper
   %li
     = link_to(conference_proposal_index_path(@conference.short_title)) do
-      %i.icon-comment
+      %span.fa.fa-comment
       My Submissions
 %li
-  = link_to(destroy_user_session_path, :method=>'delete') do
-    %i.icon-minus
-    Sign out
--if has_role?(current_user, "admin") || has_role?(current_user, "organizer")
+  - if CONFIG['authentication']['ichain']['enabled']
+    = link_to(destroy_user_ichain_session_path, :method=>'delete') do
+      %span.fa.fa-minus
+      Sign out
+  - else
+    = link_to(destroy_user_session_path, :method=>'delete') do
+      %span.fa.fa-minus
+      Sign out
+- if can? :manage, Conference
   %li.divider
-  %li.nav-header
-    Conferences
-  - @conferences.each do |conference|
     %li
-      = link_to(admin_conference_path(conference.short_title)) do
-        %i.icon-cog
-        Manage
-        = conference.short_title
-  %li
-    = link_to(new_admin_conference_path) do
-      %i.icon-plus
-      New Conference
-  %li.divider
-  %li.nav-header
-    People
+      = link_to(admin_conference_index_path()) do
+        - if Conference.any?
+          %span.fa.fa-home
+            Administration
+        - else
+          %span.fa.fa-plus
+          Create Conference
+    -if @conference and @conference.id and can? :show, @conference
+      %li
+        = link_to(admin_conference_path(@conference.short_title)) do
+          %span.fa.fa-cog
+          Manage
+          = @conference.short_title
+- if can? :manage, User.new
   %li
     = link_to(admin_users_path) do
-      %i.icon-user
+      %span.fa.fa-user
       Users
-  %li
-    = link_to(admin_people_path) do
-      %i.icon-star-empty
-      People

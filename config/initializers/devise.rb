@@ -1,10 +1,25 @@
 # Use this hook to configure devise mailer, warden hooks and so forth.
 # Many of these configuration options can be set straight in your model.
+
 Devise.setup do |config|
+  # ==> Secret key, generate one with `rake secret`
+  config.secret_key = Rails.application.secrets.devise_secret_key
+
+  # ==> openIDs configuration
+  # Define the available openID providers that can be used to log in
+  # Pass each provider to User model in :omniauth_providers (for open_id providers use their name)
+
+  config.omniauth :open_id, name: 'suse', identifier: 'http://www.opensuse.org/openid/user'
+  config.omniauth :google_oauth2, Rails.application.secrets.google_key, Rails.application.secrets.google_secret,
+                  name: 'google',
+                  scope: 'email'
+  config.omniauth :facebook, Rails.application.secrets.facebook_key, Rails.application.secrets.facebook_secret
+  config.omniauth :github, Rails.application.secrets.github_key, Rails.application.secrets.github_secret
+
   # ==> Mailer Configuration
   # Configure the e-mail address which will be shown in Devise::Mailer,
   # note that it will be overwritten if you use your own mailer class with default "from" parameter.
-  config.mailer_sender = "no-reply@conference.opensuse.org"
+  config.mailer_sender = CONFIG['sender_for_emails']
 
   # Configure the class responsible to send e-mails.
   # config.mailer = "Devise::Mailer"
@@ -23,7 +38,7 @@ Devise.setup do |config|
   # session. If you need permissions, you should implement that in a before filter.
   # You can also supply a hash where the value is a boolean determining whether
   # or not authentication should be aborted when the value is not present.
-  # config.authentication_keys = [ :email ]
+  config.authentication_keys = [ :login ]
 
   # Configure parameters from the request object used for authentication. Each entry
   # given should be a request method and it will automatically be passed to the
@@ -90,7 +105,7 @@ Devise.setup do |config|
   # able to access the website for two days without confirming his account,
   # access will be blocked just in the third day. Default is 0.days, meaning
   # the user cannot access the website without confirming his account.
-  # config.allow_unconfirmed_access_for = 2.days
+  config.allow_unconfirmed_access_for = 2.days
 
   # If true, requires any email changes to be confirmed (exactly the same way as
   # initial account confirmation) to be applied. Requires additional unconfirmed_email
@@ -125,7 +140,7 @@ Devise.setup do |config|
   # The time you want to timeout the user session without activity. After this
   # time the user will be asked for credentials again. Default is 30 minutes.
   # config.timeout_in = 30.minutes
-  
+
   # If true, expires auth token on session timeout.
   # config.expire_auth_token_on_timeout = false
 
@@ -229,4 +244,35 @@ Devise.setup do |config|
   # When using omniauth, Devise cannot automatically set Omniauth path,
   # so you need to do it manually. For the users scope, it would be:
   # config.omniauth_path_prefix = "/my_engine/users/auth"
+
+  # You will always need to set this parameter.
+  config.ichain_base_url = "https://events.opensuse.org"
+
+  # Paths (relative to ichain_base_url) used by your proxy
+  # config.ichain_login_path = "ICSLogin/"
+  # config.ichain_registration_path = "ICSLogin/auth-up/"
+  # config.ichain_logout_path = "cmd/ICSLogout/"
+
+  # The header used by your iChain proxy to pass the username.
+  # config.ichain_username_header = "HTTP_X_USERNAME"
+
+  # Additional parameters, beyond the username, provided by the iChain proxy.
+  # HTTP_X_EMAIL is expected by default. Set to {} if no additional attributes
+  # are configured in the proxy.
+  # config.ichain_attributes_header = {:email => "HTTP_X_EMAIL"}
+
+  # Configuration options for requests sent to the iChain proxy
+  # config.ichain_context = "default"
+  # config.ichain_proxypath = "reverse"
+
+  # Activate the test mode, useful when no real iChain is present, like in
+  # testing and development environments
+  # config.ichain_test_mode = true
+
+  # In test mode, you can skip asking for the user information by always
+  # forcing the following username. The user will be permanently signed in.
+  # config.ichain_force_test_username = "testuser"
+
+  # In test mode, force the following additional attributes
+  # config.ichain_force_test_attributes = {:email => "testuser@example.com"}
 end

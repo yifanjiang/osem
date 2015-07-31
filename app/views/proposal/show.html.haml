@@ -1,52 +1,70 @@
-.row
-  .span12
-    %h2
-      = @event.title
-      - if @event.subtitle
-        %br
-        %span.muted
-          = @event.subtitle
-.row-fluid
-  .span3
-    %p
-      = simple_format(@event.abstract)
-    %dl
-      %dt Date:
-      %dd= @event.start_time.strftime("%Y %B %e %H:%M") if @event.start_time
-      %dt Conference:
-      %dd= @event.conference.title
-      %dt Language:
-      %dd= @event.language if @event.language
-      %dt Track:
-      %dd
-        - if @event.track_id
-          %span.label{:style =>"background-color: #{@event.track.color};"}
-            = @event.track.name
-  .span9
-    -unless @event.video_id
-      .row-fluid
-        .span12
-          %h5.text-error
-            No video of the event yet, sorry! Meanwhile...
-    .row-fluid
-      .span12.flexvideo
-        -if @event.video_id
-          %iframe{:width=>"560", :height=>"315", :frameborder=>"0", :allowfullscreen=>"true", :src=>"http://www.youtube.com/embed/#{@event.video_id}?rel=0"}
-        -else
-          %iframe{:width=>"560", :height=>"315", :frameborder=>"0", :allowfullscreen=>"true", :src=>"http://www.youtube.com/embed/Eiv4e5ZxTmg?rel=0"}
-    .row-fluid
-      .span8
-        %h3
-          by
-          = @speaker.public_name
-          - if @speaker.company
-            %br
-            %span.muted
-              from
-              = @speaker.company
-        -if @speaker.biography
-          = simple_format(@speaker.biography)
-      .span4
-        = image_tag @speaker.gravatar_url(:size => 200), :class => "img-rounded pull-right", :style => "margin: 8px;"
-
-
+.container
+  .row
+    .col-md-12.page-header
+      %h2
+        = @event.title
+        - if @event.subtitle
+          %br
+          %small
+            = @event.subtitle
+        = link_to "Schedule", schedule_conference_path(@conference.short_title), :class =>"btn btn-success pull-right"
+        - if can? :edit, @event
+          = link_to "Edit", edit_admin_conference_event_path(@conference.short_title, @event), :class => "btn btn-mini btn-primary pull-right"
+  .row
+    .col-md-3
+      %p
+        = simple_format(@event.abstract)
+      %dl
+        %dt Date:
+        %dd= @event.start_time.strftime("%Y %B %e %H:%M") if @event.start_time
+        %dt Duration:
+        %dd= show_time(@event.event_type.length)
+        %dt Room:
+        %dd
+          - if @event.room_id
+            = @event.room.name
+        %dt Conference:
+        %dd= @event.conference.title
+        %dt Language:
+        %dd= @event.language if @event.language
+        %dt Track:
+        %dd
+          - if @event.track_id
+            %span.label{:style =>"background-color: #{@event.track.color};"}
+              = @event.track.name
+        %dt Difficulty:
+        %dd
+          - if @event.difficulty_level_id
+            %span.label{:style =>"background-color: #{@event.difficulty_level.color};"}
+              = @event.difficulty_level.title
+      - if @event.require_registration
+        = link_to "Registration required!", new_conference_conference_registrations_path(@conference.short_title), :class => "btn btn-xs btn-warning"
+    .col-md-9
+      .row
+        .col-md-12
+          - if @event.commercials.empty?
+            %h5.text-warning
+              No video of the event yet, sorry!
+              - unless @conference.commercials.empty?
+                Meanwhile...
+            - unless @conference.commercials.empty?
+              = render partial: 'shared/media_items', locals: { commercials: @conference.commercials }
+          - else
+            %p
+            = render partial: 'shared/media_items', locals: { commercials: @event.commercials }
+      .row
+        .speakerinfo
+          .col-md-8
+            %h3
+              by
+              = link_to @speaker.name, user_path(@speaker.id)
+              = "(#{@speaker.email})"
+              - if @speaker.affiliation?
+                %br
+                %span.muted
+                  from
+                  = @speaker.affiliation
+            -if @speaker.biography?
+              = simple_format(@speaker.biography)
+          .col-md-4
+            = image_tag @speaker.gravatar_url(:size => 200), :class => "img-responsive img-rounded"

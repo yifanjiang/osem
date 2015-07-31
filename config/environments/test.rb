@@ -9,10 +9,10 @@ Osem::Application.configure do
 
   # Configure static asset server for tests with Cache-Control for performance
   config.serve_static_assets = true
-  config.static_cache_control = "public, max-age=3600"
+  config.static_cache_control = 'public, max-age=3600'
 
-  # Log error messages when you accidentally call methods on nil
-  config.whiny_nils = true
+  # Do not eager load code on boot.
+  config.eager_load = false
 
   # Show full error reports and disable caching
   config.consider_all_requests_local       = true
@@ -34,4 +34,18 @@ Osem::Application.configure do
 
   # Print deprecation notices to the stderr
   config.active_support.deprecation = :stderr
+
+  # Set the detault url for action mailer
+  config.action_mailer.default_url_options = { host: 'localhost:3000' }
+
+  # Do not perform deliveries on test
+  config.action_mailer.perform_deliveries = false
+
+  config.after_initialize do
+    ActiveRecord::Base.logger = nil
+    # Set Time.now to May 1, 2014 00:01:00 AM (at this instant), but allow it to move forward
+    t = Time.local(2014, 05, 01, 00, 01, 00)
+    Timecop.travel(t)
+  end
+
 end

@@ -9,7 +9,7 @@ class Datatable
     @view = view
   end
 
-  def as_json(options = {})
+  def as_json
     {
         sEcho: params[:sEcho].to_i,
         iTotalRecords: @klass.count,
@@ -17,7 +17,6 @@ class Datatable
         aaData: data
     }
   end
-
 
   def data
     []
@@ -56,10 +55,10 @@ class Datatable
     search_for = params[:sSearch].split(' ')
     terms = {}
     which_one = -1
-    criteria = search_for.inject([]) do |criteria,atom|
+    criteria = search_for.inject([]) do |mem, atom|
       which_one += 1
       terms["search#{which_one}".to_sym] = "%#{atom}%"
-      criteria << "(#{search_cols.map{|col| "#{col} like :search#{which_one}"}.join(' or ')})"
+      mem << "(#{search_cols.map{|col| "#{col} like :search#{which_one}"}.join(' or ')})"
     end.join(' and ')
     [criteria, terms]
   end
@@ -80,7 +79,7 @@ class Datatable
       sort_by << "#{sort_column(colnum)} #{sort_direction(colnum)}"
       colnum += 1
     end
-    sort_by.join(", ")
+    sort_by.join(', ')
   end
 
   def sorted? index=0
@@ -94,6 +93,6 @@ class Datatable
 
   def sort_direction index=0
     index = "sSortDir_#{index}"
-    params[index] == "desc" ? "desc" : "asc"
+    params[index] == 'desc' ? 'desc' : 'asc'
   end
 end

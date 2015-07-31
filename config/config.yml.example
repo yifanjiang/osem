@@ -1,6 +1,25 @@
 defaults: &defaults
+  # The name of your instance
+  name: OSEM
+  # The sender address of emails
+  sender_for_emails: "no-reply@localhost"
   # The hostname to be used when building the URL in the emails
-  url_for_emails: localhost:3000
+  url_for_emails: "localhost:3000"
+  # errbit configuration, get your own instance: https://github.com/errbit/errbit
+  #errbit_key: See config/secrets.yml
+  #errbit_host: errbit.exmaple.com
+  # These are the currently supported commercial types for conference and events
+  commercial_types: { youtube: 'YouTube',
+                           slideshare: 'SlideShare',
+                           flickr: 'Flickr',
+                           vimeo: 'Vimeo',
+                           speakerdeck: 'Speakerdeck',
+                           instagram: 'Instagram' }
+
+  # If you want to use iChain to handle registration and authentication enable the next lines
+  authentication:
+    ichain:
+      enabled: false
 
 development:
   <<: *defaults
@@ -11,3 +30,6 @@ test:
 production:
   <<: *defaults
 
+  # If you add more providers that do not require a key, you still have to create the 2 variables with sample data
+
+  transifex_live_api_key: ''
